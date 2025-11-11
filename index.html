@@ -65,6 +65,26 @@
  0% { transform: rotate(0deg); }
  100% { transform: rotate(360deg); }
 }  
+#tim{
+     position: fixed;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+  font-size: 18px;
+  border: none;
+  outline: none;
+  background-color: red;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 4px; 
+}
+#tim:hover {
+  background-color: #555;
+}
+
+
+
     </style>
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
@@ -107,52 +127,9 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                      
-                        <div class="row mb-1">
-                                
-                            <div class="col-md-3 mb-1">
-                                 <table>
-                                    <tr>
-                                        <td>
-                                            <div class="form-floating" >
-                                                <input type="date" class="form-control" >
-                                                <label>Từ ngày</label>    
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="form-floating" >
-                                                <input type="date" class="form-control" >
-                                                <label>Đến ngày</label>    
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2">
-                                            <div class="form-floating" >
-                                                <input type="text" class="form-control" >
-                                                <label>Chi nhánh</label>    
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2">
-                                            <button onclick="xembc()" class="btn btn-primary w-100 mt-2">Xem báo cáo</button>
-                                        </td>
-                                    </tr>
-                                 </table>
-                            </div>
-                            <div class="col-md-9 mb-1">
                                   <div id = "kq">
                                        <div class="loader"></div>
                                   </div>
-                            </div>
-                        </div>
-              
-                  
-             
-
-                       
-
                     </div>
                 </main>
                 <footer class="py-4 bg-light mt-auto">
@@ -177,8 +154,11 @@
                   </div>
             </div>
         </div>
+
+       
         
         <div id = "modalchung" class="end giaodien" ></div>
+        <button  id = "tim" onclick="timkiem()" ><i class="bi bi-search"></i></button>
      <script>dangnhap()</script>
     </body>
 </html>
