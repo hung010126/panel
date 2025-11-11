@@ -12,8 +12,7 @@ function dangnhap(){
         }
 
  function tao_dtxem(){
- let obj = { ht : 'laydl_panel' }
- momodal()				  
+ let obj = { ht : 'laydl_panel' }		  
  fetch(api,{
 method:"POST",
 body:JSON.stringify(obj)
