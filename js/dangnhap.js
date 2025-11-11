@@ -37,6 +37,10 @@ body:JSON.stringify(obj)
   })
 }
 
+function xembc(){
+  
+}
+
         function tao_tbthicap(){
           nhapinner('sl_chon','')
           nhapinner('sl_tt','')
