@@ -41,23 +41,24 @@ function xembc(){
 
 }
 
-   function modalphai_mo(nd,td,giua){
+   function modalphai_mo(nd){
              nhapinner('modalchung',`<div class = "modal_phai">
                  <div class="left-side"></div>
                  <div class="right-side">
-                            <button id = "nuttat_modalphai_mo" onclick = "modal_tat()" class="button is-danger nut_modalphai" ><i class="fa-solid fa-xmark"></i></button>
-                            ${td}
-                      ${giua}
-                      <div class="scrollable-content">
+                           
                       ${nd}
-                      </div>
+                      
                  </div> 
              </div>`)
              mo_html('modalchung')
       }
 
+      let tt_tim = 'no'
 function timkiem(){
-       modalphai_mo(`<table>
+       if(tt_tim == 'ok') return tt_tim = 'no' , modal_tat() ;
+       if(tt_tim == 'no') return tt_tim = 'ok' , modalphai_mo(`
+        <h4>Tìm Kiếm</h4>
+        <table>
             <tr>
                 <td>
                      <div class="form-floating" >
@@ -85,7 +86,7 @@ function timkiem(){
                     <button onclick="xembc()" class="btn btn-primary w-100 mt-2">Xem báo cáo</button>
                 </td>
             </tr>
-        </table>`,`<h4>Tìm Kiếm</h4>`,'')
+        </table>`)
 }
 
         function tao_tbthicap(){
