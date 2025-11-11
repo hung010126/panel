@@ -1,4 +1,4 @@
-  let api = 'https://script.google.com/macros/s/AKfycbxTnS-LrFv_VCzIDuzXNsWxewrd39rTLdILmUJNrxG2Gtj-w3iCboHpgU1dKIOpTCH-pg/exec' ;
-  let tendn = 'Taekwondo Việt Nam'
+  let api = 'https://script.google.com/macros/s/AKfycbzmDDgjI5p1a8c5YLiWFX4Ih4fTKGUk2p1O1F-d35aLrzImtK6ak1O2puY4qq0PfpXcvw/exec' ;
+  let tendn = 'PANEL CÔNG NỢ'
 
   
