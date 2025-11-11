@@ -2,7 +2,7 @@
   let link = window.location.href ;
   let user = localStorage.dangnhap ;
   let timelog = localStorage.timelg ;
-  let tk = '' , dt = [] , nv = [] , hm = [] , ghi = [] , gach = [] ; 
+  let tk = '' , dt = [] , nv = [] , hm = [] , ghi = [] , gach = [] , dschinhanh = []  ; 
   
 function dangnhap(){
          if(user == '' || user == null || user == undefined || timelog == undefined || timelog == '') return  window.location.href = 'login.html'
@@ -27,9 +27,17 @@ body:JSON.stringify(obj)
           hm = dt.hm
           ghi =dt.ghi 
           gach = dt.gach
+          dschinhanh = dt.dschinhanh 
+
+          console.log({
+            dt,nv,hm,ghi,gach,dschinhanh
+          })
+          
           nhapinner('kq',`<table id="dt_end" class="display bg-light" style="width:100%">                      
                                  <thead style="background:#4076fb"></thead>
                     </table>`)
+                    tt_tim = 'ok'
+                    timkiem()
     } else {
         alert(dt.tb+'\nVui lòng F5 sau ít phút!')
     }
@@ -55,10 +63,13 @@ function xembc(){
 
       let tt_tim = 'no'
 function timkiem(){
+  console.log(dschinhanh)
+  
        if(tt_tim == 'ok') return tt_tim = 'no' , modal_tat() ;
        if(tt_tim == 'no') return tt_tim = 'ok' , modalphai_mo(`
-        <h4>Tìm Kiếm</h4>
-        <table>
+        
+        <h4 style = "margin-top:10px;;text-align:center;color:red;">Tìm Kiếm</h4>
+        <table style = "width:100%">
             <tr>
                 <td>
                      <div class="form-floating" >
@@ -76,7 +87,10 @@ function timkiem(){
             <tr>
                 <td colspan="2">
                     <div class="form-floating" >
-                        <input type="text" class="form-control" >
+                        <input list="list_chinhanh" type="text" class="form-control" >
+                        <datalist id="list_chinhanh">
+                           
+                        </datalist>
                         <label>Chi nhánh</label>    
                     </div>
                 </td>
