@@ -8,8 +8,21 @@ function dangnhap(){
          if(user == '' || user == null || user == undefined || timelog == undefined || timelog == '') return  window.location.href = 'login.html'
          var gio = new Date().getTime() , tru = gio - timelog , tr = tru / (1000 * 60 * 60) ; if(tr > 72 )  return  thoat()
          var tt = JSON.parse(user) , ten = tt['ten'] ; console.log(tt) ; tk = tt ; nhapval('#tkdn',`<div class="small">Xin chào:</div>${ten}`,2)
-                
+                 tao_dtxem()
         }
+
+ function tao_dtxem(){
+ let obj = { ht : 'laydl_panel' }
+ momodal()				  
+ fetch(api,{
+method:"POST",
+body:JSON.stringify(obj)
+}).then(res => res.json())
+  .then(dt => {
+    console.log(dt)
+
+  })
+}
 
         function tao_tbthicap(){
           nhapinner('sl_chon','')
