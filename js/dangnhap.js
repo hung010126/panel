@@ -2,13 +2,13 @@
   let link = window.location.href ;
   let user = localStorage.dangnhap ;
   let timelog = localStorage.timelg ;
-  let tk = '' , ds_thuky = [] , ds_phanloai = [] , ds_gsgk = [] 
-  // ds_phanloai = [maclb,ndcu,ndmoi,tên gọi,cot trong gg sheet]
+  let tk = '' 
+  
 function dangnhap(){
          if(user == '' || user == null || user == undefined || timelog == undefined || timelog == '') return  window.location.href = 'login.html'
          var gio = new Date().getTime() , tru = gio - timelog , tr = tru / (1000 * 60 * 60) ; if(tr > 72 )  return  thoat()
          var tt = JSON.parse(user) , ten = tt['ten'] ; console.log(tt) ; tk = tt ; nhapval('#tkdn',`<div class="small">Xin chào:</div>${ten}`,2)
-                 tao_tbthicap()
+                
         }
 
         function tao_tbthicap(){
@@ -147,216 +147,16 @@ body:JSON.stringify(obj)
     })
         }
 
-        function width(x,so){return `<div style = "width:${so}px">${x}</div>`}
-        function chongsgk(nd,khoa,id,loai,ma,cot){
-                 if(khoa == 'khoa') return `<span class = "chudo" >${nd}</span>`
-                 var ds = ds_gsgk.findIndex(b => b[5] == nd)
-                 return `<div ondblclick = "chonphancong_gsgk(\'${nd}\',\'${ma}\',\'${id}\',\'${loai}\',\'${cot}\')" id = "${id}">
-                        <span ${ds < 0 || nd == '' ? `class = "mau_nhe"` : '' }  >${ds < 0 || nd == '' ? `Chọn ${loai}` : nd}</span>
-                 </div>`
-        }
+     
+        
 
-        function chon_trangthai(nd,khoa,id,loai,ma,cot){
-                 if(khoa == 'khoa') return `<span class = "chudo" >${nd}</span>`
-                 var chon = ['ONL','OFF'] , ds = chon.findIndex(b => b == nd)
-                 return `<div ondblclick = "chonphancong_tt(\'${nd}\',\'${ma}\',\'${id}\',\'${loai}\',\'${cot}\')" id = "${id}">
-                        <span ${ds < 0 || nd == '' ? `class = "mau_nhe"` : '' }  >${ds < 0 || nd == '' ? `TT ${loai}` : nd}</span>
-                 </div>`
-        }
-        function chon_sl(nd,khoa,id,loai,ma,cot){
-                 if(khoa == 'khoa') return `<span class = "chudo" >${nd}</span>`
-              
-                 return `<div ondblclick = "chonslthi(\'${nd}\',\'${ma}\',\'${id}\',\'${loai}\',\'${cot}\')" id = "${id}">
-                        <span ${ nd == '' ? `class = "mau_nhe"` : '' }  >${ nd == '' ? `-` : nd }</span>
-                 </div>`
-        }
-
-        function tachspan(x){
-            var s = x.split('<span')[1].replace(/\D/g,'') ; return isNaN(Number(s)) == true ? 0 : Number(s)
-        }
-
-        function   tbb_tong(dt){
-             var sl = 0 ,sl1 = 0 , sl2 = 0 ; for(z = 0 ; z < dt.length ; z++){ 
-                 sl += Number(dt[z][6])
-                 sl1 += Number(tachspan(dt[z][7]))
-                 sl2 += Number(tachspan(dt[z][8]))
-
-              }
-             nhapinner('sl_chon',sl.toLocaleString('vi'))
-             nhapinner('sl_tt',sl1.toLocaleString('vi'))
-             nhapinner('sl_dat',sl2.toLocaleString('vi'))
-        }
-
-        function chonphancong(thuky,maclb,vt){
-          nhapval(`#phancong_${vt}`, `<div class = "form-floating">
-                   <select id = "chontk_${vt}" onchange = "chontkmoi(\'${vt}\',\'${maclb}\',\'${thuky}\',\'AQ\')"  class = "form-select" >
-                          ${ds_thuky.findIndex(zz => u(zz[0]) == thuky) < 0 ? `<option selected disabled >Chọn dữ liệu</option>${ds_thuky.map(ts => {return `<option>${ts[0]}</option>`}).join('')}` 
-                                                                               : ds_thuky.map(ts => {return `<option  ${ts[0] == thuky ? 'selected' : '' }  >${ts[0]}</option>`}).join('') }
-                   </select>
-                   <label>Chọn thư ký</label>
-               </div>`,2)
-            
-        }
-
-         function chonphancong_tt(nd,maclb,id,loai,cot){
-             var c = ['ONL','OFF'] , l = c.map(v => {return `<option ${v == nd ? 'selected' : ''} >${v}</option>`}).join(' ') ;    nhapval(`#${id}`,`<div class = "form-floating">
-              <select id = "chontt_${id}" class = "form-select"  onchange = "chon_ttmoi(\'${id}\',\'${maclb}\',\'${nd}\',\'${cot}\',\'${loai}\')" >
-                 ${c.findIndex(t => t == nd) < 0 ? '<option selected disabled >Chọn dữ liệu</option>'+l : l }
-              </select>
-              <label>Chọn TT${loai}</label>
-              </div>`,2)
-         }
-
-         function chonslthi(nd,maclb,id,loai,cot){
-              nhapval(`#${id}`,`<div class = "form-floating">
-              <input value = "${nd}" id = "chontt_${id}" class = "form-control" type = "number"  onchange = "chon_ttmoi(\'${id}\',\'${maclb}\',\'${nd}\',\'${cot}\',\'${loai}\')" />
-              <label>Sô lượng ${loai}</label>
-              </div>`,2)
-         }
-
-         function chon_ttmoi(vt,maclb,ndcu,cot,loai){
-               var nd = val(`#chontt_${vt}`,1)
-               nhapval(`#${vt}`,`<span class = "chuxanh" >${nd}</span>`,2)
-            var tim = ds_phanloai.findIndex(z => z[0] == maclb && z[4] == cot)
-            if(tim < 0){
-                 ds_phanloai.push([ maclb,ndcu,nd,loai,cot])
-            } else {
-                 ds_phanloai[tim][2] = nd 
-            }
-            capnhat_pl()
-         }
+      
        
 
-        function chonphancong_gsgk(nd,maclb,id,loai,cot){
-          var ds = loai == 'GS' ? ds_gsgk.slice(1).filter(b => u(b[9]) !== '') : ds_gsgk.filter(b => b[9] == 'GK')
-          modalphai_mo(`<table id = "table_chonphancong_gsgk" style = "width:100%" >
-                            <thead>
-                                   <tr>
-                                       <th class = "thh" style="width:20%" >Mã</th>
-                                       <th class = "thh"  >Tên</th>
-                                       <th class = "thh" style="width:20%" >Đơn Vị</th>
-                                       <th class = "thh" style="width:20%" >Nhiệm vụ</th>
-                                   </tr>
-                            </thead>
-                           <tbody>
-                                   ${ds.map((r,vt) => {
-                                     return `<tr>
-                                          <td>${r[4]}</td>
-                                          <td>
-                                              <button onclick = "chon_gsgkmoi(\'${id}\',\'${maclb}\',\'${nd}\',\'${loai}\',\'${cot}\',\'${r[5]}\')"  class = "btn btn-danger" >${r[5]}</button>
-                                          </td>
-                                          <td>${r[2]}</td>
-                                          <td>${r[9]}</td>
-                                     </tr>`
-                                   }).join(' ')}
-                           </tbody>
-                   </table>`,`<h5 class = "chudo" >Chọn ${loai}</h5>`,`<div class = "row mb-1">
-                       <div class = "col-12 mb-1">
-                                 <div class = "form-floating">
-                                        <input onkeyup = "filterTable(this,\'table_chonphancong_gsgk\')"  class = "form-control" type = "text" />
-                                        <label>Tìm kiếm</label>
-                                 </div>
-                       </div>
-                  </div>`)      
-            
-        }
 
-        function chon_gsgkmoi(vt,maclb,ndcu,loai , cot,nd){
-             modal_tat()
-             nhapval(`#${vt}`,`<span class = "chuxanh" >${nd}</span>`,2)
-            var tim = ds_phanloai.findIndex(z => z[0] == maclb && z[4] == cot)
-            if(tim < 0){
-                 ds_phanloai.push([ maclb,ndcu,nd,loai,cot])
-            } else {
-                 ds_phanloai[tim][2] = nd 
-            }
-            capnhat_pl()
-        }
+     
 
-        function chontkmoi(vt,maclb,thuky,cot){
-            var nd = val('#chontk_'+vt,1) ; nhapval(`#phancong_${vt}`,`<span class = "chuxanh" >${nd}</span>`,2)
-            var tim = ds_phanloai.findIndex(z => z[0] == maclb && z[4] == cot)
-            if(tim < 0){
-                 ds_phanloai.push([ maclb,thuky,nd,'Thư ký',cot])
-            } else {
-                 ds_phanloai[tim][2] = nd 
-            }
-            capnhat_pl()
-        }
-
-        function capnhat_pl(){
-            nhapinner('sl_thay',`<button onclick = "xem_capnhat_pl()" class = "btn btn-danger">${ds_phanloai.length}</button>`)
-        }
-        function xoapl(ma,vt,l){
-          if(confirm('Bạn muốn loại khỏi danh sách cập nhật!') == true){
-              nhapval('#xoapl_'+vt,'<span class = "chudo">Đã xóa</span>',2)
-             var t = ds_phanloai.filter(b => b[0] !== ma && b[4] !== l)
-             ds_phanloai = t
-             capnhat_pl()
-          }
-            
-        }
-        function xem_capnhat_pl(){
-                 modalphai_mo(`<table id = "table_capnhat_pl" >
-                            <thead>
-                                   <tr>
-                                       <th class = "thh" style="width:20%" >Tên/Mã</th>
-                                       <th class = "thh" style="width:40%" >Nội dung cũ</th>
-                                       <th class = "thh" style="width:40%" >Nội dung mới</th>
-                                   </tr>
-                            </thead>
-                           <tbody>
-                                   ${ds_phanloai.map((r,vt) => {
-                                     return `<tr>
-                                          <td>${r[3]}<br>${u(r[0])}<span id = "xoapl_${vt}" ><button onclick = "xoapl(\'${r[0]}\',\'${vt}\',\'${r[4]}\')" class = "btn btn-danger" >Xóa</button></span></td>
-                                          <td>${r[1]}</td>
-                                          <td>${r[2]}</td>
-                                     </tr>`
-                                   }).join(' ')}
-                           </tbody>
-                   </table>`,`<h5 class = "chudo" >Danh sách thay đổi</h5>`,`<div class = "row mb-1">
-                   <div class = "col-3 mb-1">
-                       <button onclick = "capnhatdtmoi()" class = "btn btn-danger">Cập nhật</button>
-                   </div>
-                       <div class = "col-9 mb-1">
-                                 <div class = "form-floating">
-                                        <input onkeyup = "filterTable(this,\'table_capnhat_pl\')"  class = "form-control" type = "text" />
-                                        <label>Tìm kiếm</label>
-                                 </div>
-                       </div>
-                   </div>`)
-        }
-
-
-        function capnhatdtmoi(){
-            if(ds_phanloai.length == 0) return alert('Vui lòng kiểm tra bạn chưa có nội dung cần thay đổi!')
-            if(confirm('Bạn xác nhận cập nhật') == true){
-   modal_tat()
-   momodal()           
-   let obj = { ht : 'capnhat', dt :  ds_phanloai  }				   
-fetch(api,{
-method:"POST",
-body:JSON.stringify(obj)
-}).then(res => res.json())
-  .then(dt => {
-        if(dt.tb == 'ok'){		    		
-             window.location.href = 'index.html'
-        } else {
-            alert(dt.nd)
-           
-        }
-    })	
-            }
-        }
-
- function check_quythi(x){
-    var t = gettime(x) ; if(t == 0) return 'Lỗi quý'
-    var n = new Date(t) , nam = n.getFullYear() , th = n.getMonth()
-    if(th <= 2) return `Q1-${nam}`
-    if(th <= 5) return `Q2-${nam}`
-    if(th <= 8) return `Q3-${nam}`
-    return `Q4-${nam}`
- }       
+     
 
 function logout(){
       if(confirm('Bạn muốn đăng xuất!') == true){
@@ -393,32 +193,5 @@ body:JSON.stringify(obj)
     })	
 }
 
-function load_datatracuu(){
-          let obj = { ht : 'load_datatracuu' }				   
-fetch(api,{
-method:"POST",
-body:JSON.stringify(obj)
-}).then(res => res.json())
-  .then(dt => {
-         if(dt.tb == 'ok'){		    		
-             clubData = dt.dl
-        } else {
-            alert(dt.nd)
-        }
-    })
-}
 
-function load_clubtracuu(){
-          let obj = { ht : 'load_clubtracuu' }				   
-fetch(api,{
-method:"POST",
-body:JSON.stringify(obj)
-}).then(res => res.json())
-  .then(dt => {
-         if(dt.tb == 'ok'){		 
-              clubData = dt.dl
-        } else {
-            alert(dt.nd)
-        }
-    })
-}
+
