@@ -2,7 +2,7 @@
   let link = window.location.href ;
   let user = localStorage.dangnhap ;
   let timelog = localStorage.timelg ;
-  let tk = '' 
+  let tk = '' , dt = [] , nv = [] , hm = [] , ghi = [] , gach = [] ; 
   
 function dangnhap(){
          if(user == '' || user == null || user == undefined || timelog == undefined || timelog == '') return  window.location.href = 'login.html'
@@ -11,14 +11,28 @@ function dangnhap(){
                  tao_dtxem()
         }
 
+ 
+
  function tao_dtxem(){
- let obj = { ht : 'laydl_panel' }		  
+ let obj = { ht : 'laydl_panel' }			  
  fetch(api,{
 method:"POST",
 body:JSON.stringify(obj)
 }).then(res => res.json())
   .then(dt => {
     console.log(dt)
+    if(dt.tb == 'ok'){
+          dt = dt.dt
+          nv = dt.nv 
+          hm = dt.hm
+          ghi =dt.ghi 
+          gach = dt.gach
+          nhapinner('kq',`<table id="dt_end" class="display bg-light" style="width:100%">                      
+                                 <thead style="background:#4076fb"></thead>
+                    </table>`)
+    } else {
+        alert(dt.tb+'\nVui lòng F5 sau ít phút!')
+    }
 
   })
 }
