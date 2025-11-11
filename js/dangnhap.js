@@ -38,7 +38,54 @@ body:JSON.stringify(obj)
 }
 
 function xembc(){
-  
+
+}
+
+   function modalphai_mo(nd,td,giua){
+             nhapinner('modalchung',`<div class = "modal_phai">
+                 <div class="left-side"></div>
+                 <div class="right-side">
+                            <button id = "nuttat_modalphai_mo" onclick = "modal_tat()" class="button is-danger nut_modalphai" ><i class="fa-solid fa-xmark"></i></button>
+                            ${td}
+                      ${giua}
+                      <div class="scrollable-content">
+                      ${nd}
+                      </div>
+                 </div> 
+             </div>`)
+             mo_html('modalchung')
+      }
+
+function timkiem(){
+       modalphai_mo(`<table>
+            <tr>
+                <td>
+                     <div class="form-floating" >
+                                 <input type="date" class="form-control" >
+                                 <label>Từ ngày</label>    
+                     </div>
+                </td>
+                <td>
+                     <div class="form-floating" >
+                         <input type="date" class="form-control" >
+                         <label>Đến ngày</label>    
+                     </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="form-floating" >
+                        <input type="text" class="form-control" >
+                        <label>Chi nhánh</label>    
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <button onclick="xembc()" class="btn btn-primary w-100 mt-2">Xem báo cáo</button>
+                </td>
+            </tr>
+        </table>`,`<h4>Tìm Kiếm</h4>`,'')
 }
 
         function tao_tbthicap(){
