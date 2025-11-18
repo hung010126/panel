@@ -2,7 +2,7 @@
   let link = window.location.href ;
   let user = localStorage.dangnhap ;
   let timelog = localStorage.timelg ;
-  let tk = '' , dt = [] , nv = [] , hm = [] , ghi = [] , gach = [] , dschinhanh = []  ; 
+  let tk = '' , dt = [] , tt_nv = [] , tt_hm = [] , tt_ghi = [] , tt_gach = [] , dschinhanh = []  ; 
   
 function dangnhap(){
          if(user == '' || user == null || user == undefined || timelog == undefined || timelog == '') return  window.location.href = 'login.html'
@@ -19,24 +19,18 @@ function dangnhap(){
 method:"POST",
 body:JSON.stringify(obj)
 }).then(res => res.json())
-  .then(dt => {
-    console.log(dt)
-    if(dt.tb == 'ok'){
-          dt = dt.dt
-          nv = dt.nv 
-          hm = dt.hm
-          ghi =dt.ghi 
-          gach = dt.gach
-          dschinhanh = dt.dschinhanh 
-
-          console.log({
-            dt,nv,hm,ghi,gach,dschinhanh
-          })
-          
+  .then(ar => {
+    console.log(ar)
+    if(ar.tb == 'ok'){
+          dt = ar.dt
+          tt_nv = ar.nv 
+          tt_hm = ar.hm
+          tt_ghi =ar.dt_ghi 
+          tt_gach = ar.dt_gach
+          dschinhanh = ar.dschinhanh 
           nhapinner('kq',`<table id="dt_end" class="display bg-light" style="width:100%">                      
                                  <thead style="background:#4076fb"></thead>
                     </table>`)
-                    tt_tim = 'ok'
                     timkiem()
     } else {
         alert(dt.tb+'\nVui lòng F5 sau ít phút!')
@@ -46,7 +40,136 @@ body:JSON.stringify(obj)
 }
 
 function xembc(){
+         var tu = val('#a1',1) , den = val('#a2',1) , kq = [] 
+         if(tu == '' || den == '') return alert('Vui lòng chọn khoảng thời gian!')
+         var n_t = new Date(tu).getTime() , n_d = new Date(den).getTime() ; if(n_d < n_t) return alert('Ngày đến phải lớn hơn ngày từ!')
+         var cn = $('#chon_cn').val() , kh = $('#chon_kh').val().toString() , nv = $('#chon_nv').val().toString()
+       console.log({cn,kh,nv}) 
+         var gach = Object.groupBy(
+                           tt_gach.filter(v => { var ngay_gach = gettime(u(v[4])) , loc = cn.length == 0 ? 0 : cn.findIndex(kt => kt == u(v[0])) ; return ngay_gach >= 0 && ngay_gach <= n_d && u(v[3]) == '' && loc >= 0  ? true : false })
+                           .map(v => {
+                            kq.push(  [u(v[5]),ns(u(v[6])) ,u(v[4]), u(v[7]) ,'gach'  ,0        , 0       , ''  ]  )
+                            return [u(v[5]),ns(u(v[6])),v[0]] })
+                           , v => u(v[0]))
+                          
 
+          var ghi = Object.groupBy(
+                          tt_ghi.filter(v => { var ngay_ghi = gettime(u(v[4])) , loc = cn.length == 0 ? 0 : cn.findIndex(kt => kt == u(v[0]))  ; return ngay_ghi >= 0 && ngay_ghi <= n_d && loc >= 0 && u(v[3]) == '' ? true : false }) 
+                          .map(d => {
+                            kq.push([u(d[6]),ns(u(d[15])),u(d[4]),'-'      ,'ghi'   ,ns(u(d[13])) ,ns(u(d[14])) ,u(d[8]) ])
+                            return [ `${u(d[4])}<@>${u(d[5])}<@>${u(d[6])}<@>${u(d[8])}<@>${u(d[12])}` ,ns(d[10]),ns(d[13]),ns(d[14]),ns(d[15]),gettime(d[4]),d[0] ] })
+                          .sort((a,b) => a[5] - b[5] ) 
+                          , v => u(v[0]))
+
+                         
+          var hm = Object.groupBy(tt_hm.sort((a,b) => gettime(u(b[2])) - gettime(u(a[2])) ), v => u(v[0]) )                
+                     console.log({gach,ghi,hm}) 
+
+          var bang_t2 = []
+
+       for(const[key,nd] of Object.entries(ghi)){
+        var [ngay,idnv,iddt,nhomhang,tuyen] = key.split('<@>') , timg = gach[iddt] , sogg = 0 , tongtien = tongmang(nd,4) , timhm = hm[iddt] , thm = '' , tienhm = '' , han_muc = 0
+        var songay_ketthuctrucot0 =    ( (n_d + motngay ) - gettime(ngay) ) / motngay  
+        if(timg !== undefined){
+            sogg = tongmang(timg,1)
+            gach[iddt].push([ iddt , tongtien     ])
+        } else {
+           gach[iddt] = [[iddt , tongtien]]
+        }
+        if(timhm !== undefined){ 
+          thm = u(timhm[0][3]) == '' ? '' :    songay_ketthuctrucot0   - ns(u(timhm[0][3])) // đổi 999999999 sang rỗng
+          tienhm = u(timhm[0][4]) == '' ? '' :  ns(u(timhm[0][4]))
+          han_muc = u(timhm[0][3]) == '' ? 0 : ns(u(timhm[0][3]))
+        }
+        var sotong = sogg + tongtien
+        var pl = tinh_pl( thm ,sotong , tienhm)
+        var sotong_qh = (sotong * -1) > tienhm ? tienhm - (sotong * -1) : sotong
+        bang_t2.push([ngay,idnv,iddt,nhomhang,tuyen, tongmang(nd,1), tongmang(nd,2), tongmang(nd,3), tongtien , sotong_qh   , thm , tienhm , pl.l1 , pl.l2 , sogg
+         , sotong >= 0 ? '' : (sotong * -1) > tienhm ? 'Quá hạn' : thm > ns(han_muc) ? 'Quá hạn'  : '' 
+         , thm - ns(han_muc) , ns(han_muc) 
+         
+         ])  
+    }         
+      
+
+
+    var g0 = gomdt(dt,0), g1 = gomdt(nv,0) 
+    var gom_bangt2 = Object.groupBy(bang_t2.sort( (qha,qhb) => { return gettime(qha[0]) - gettime(qhb[0])}) ,r => r[2])
+    var gom_kh = Object.groupBy(kq,z => z[0]) , kq_kh = [] ; for(const[kz,nz] of Object.entries(gom_kh)){
+        if(kz.trim() !== ''){
+        var makh = 'Emty' , tenkh = 'Emty' , checkkh = g0[kz] ; if(checkkh !== undefined){
+           makh = checkkh[0][3]
+           tenkh = checkkh[0][4]
+        } 
+        var dauky = tongmang(nz.filter(bb => gettime(u(bb[2])) < n_t && u(bb[3]).toUpperCase().trim() !== 'CỌC' ).map(v => {return [ns(u(v[1]).toString())]}),0)  
+        var phaithu = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d && bb[4] == 'ghi'  ),1)  
+        var tongthu = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d && bb[4] == 'gach' && u(bb[3]).toUpperCase().trim() !== 'CỌC' ),1)  
+        var rong = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[3]).trim() == '' ),1)
+        var c31  = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[3]).trim() == '31' ),1)
+        var c61  = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[3]).trim() == '61' ),1)
+        var coc  = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[3]).toUpperCase().trim() == 'CỌC' ),1)
+        var chietkhau = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[4]) == 'ghi' ),5)
+        var thue = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[4]) == 'ghi' ),6)
+        var vanchuyen = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[4]) == 'ghi' && u(bb[7]).toUpperCase().trim() == 'VC' ),1)
+
+        var max = gom_bangt2[kz] == undefined ? 0 : tinhmax(gom_bangt2[kz])
+        var hanmuc =  gom_bangt2[kz] == undefined ? 0 : ns(gom_bangt2[kz][0][11])
+        var cuoiky = dauky + phaithu + tongthu
+        var qh = tinhqh(gom_bangt2[kz]) , quahan = qh.cnqh 
+        var conlai = dauky + phaithu + tongthu
+        var congnotronghan = (cuoiky - quahan).toFixed(0) > 0 ? 0 : cuoiky - quahan
+        var themcoc = (cuoiky - quahan).toFixed(0) > 0 ?  cuoiky - quahan : 0
+
+        var qh_nn = conlai == 0 ? 0 :  Number(quahan.toFixed(1) ) *-1
+        var qh_30nn = conlai == 0 ? 0 :  qh.t30*-1
+        var qh_3060nn = conlai == 0 ? 0 :  qh.t30_60*-1
+        var qh_60nn = conlai == 0 ? 0 :  qh.t60*-1
+        var coc_nn = conlai == 0 ? 0 :  coc
+
+         // (dauky*-1) + (phaithu*-1) + tongthu + (Number(congnotronghan.toFixed(1))*-1) + qh_nn + conlai + coc_nn + themcoc
+        var so_hienthi = (dauky*-1) + (phaithu*-1) + tongthu + (Number(congnotronghan.toFixed(1))*-1) + qh_nn + conlai + coc_nn + themcoc
+        if(so_hienthi > 0){
+              kq_kh.push([kz,makh,tenkh,dauky*-1,phaithu*-1,tongthu,rong,c31,c61, Number(congnotronghan.toFixed(1)) *-1 , qh_nn , qh_30nn , qh_3060nn , qh_60nn
+         ,coc_nn + themcoc ,chietkhau,vanchuyen,thue,conlai*-1,hm[kz] == undefined ? 'Emty NV' : hm[kz][0][1] ])
+        }
+
+        
+      }                                                                 
+    }
+
+    console.log({kq_kh,gom_bangt2})
+}
+
+function tinhmax(dz){
+     var dt = dz.sort( (za,zb) => {return zb[9] - za[9] } )
+     var z1 = dt.filter(l => u(l[13]).toString() == '1')
+     var z2 = dt.filter(l => u(l[12]).toString() == '1')
+     return z1.length !== 0 ? z1[0][9] : z2.length !== 0 ? z2[0][9] : 0 
+}
+
+
+function tinh_pl(n,no,hm){
+    return {
+       l1 : n>=0 && no < 0 ? '' : n >= 0 && no > 0 ? 1 : hm > no ? 1 : no !== 0 ? 2 : ''
+      ,l2: no >0 && n> 0 ? 1 : ''
+    }
+}
+
+function tinhqh(dt){
+       if(dt == undefined) return {cnqh:0,t30:0,t30_60:0,t60:0}
+       var l = dt.filter(v => v[15] == 'Quá hạn').sort( (za,zb) => {return za[9] - zb[9] } )
+       if(l.length == 0) return {cnqh:0,t30:0,t30_60:0,t60:0}
+       var zqh , z30 , z30_60 , z60 , cot = 10
+       var z1 = l.filter(k => k[cot] <= 30 )
+       var z2 = l.filter(k => k[cot] > 30 && k[cot] <= 60 )
+       var z3 = l.filter(k => k[cot] > 60 )
+       zqh = ns(l[0][9])
+      
+       z60 = z3.length == 0 ? 0 : z3[0][9]
+       z30 = z3.length !== 0 && z2.length !== 0 ? tongmang(z1,8) : z1.length !== 0 ? z1[0][9] : 0 
+       z30_60 = z3.length !== 0 && z2.length !== 0 ?  zqh - z60 - z30 : z2.length !== 0 ?  z2[0][9] : 0 
+
+       return  {cnqh:zqh,t30:z30,t30_60:z30_60,t60:z60}
 }
 
    function modalphai_mo(nd){
@@ -61,37 +184,58 @@ function xembc(){
              mo_html('modalchung')
       }
 
-      let tt_tim = 'no'
+      let tt_tim = 'no' , choncn , chonkh , chonnv ;
+function taolocds(ar,cot){
+   var g = Object.groupBy(ar , v => {
+         return u(v[2]) !== '' ? 'Bỏ' : u(v[cot])
+   } )
+   return Object.keys(g).filter(v => v != 'Bỏ') 
+}
 function timkiem(){
   console.log(dschinhanh)
   
        if(tt_tim == 'ok') return tt_tim = 'no' , modal_tat() ;
        if(tt_tim == 'no') return tt_tim = 'ok' , modalphai_mo(`
-        
         <h4 style = "margin-top:10px;;text-align:center;color:red;">Tìm Kiếm</h4>
         <table style = "width:100%">
             <tr>
                 <td>
                      <div class="form-floating" >
-                                 <input type="date" class="form-control" >
+                                 <input id = "a1" type="date" class="form-control" >
                                  <label>Từ ngày</label>    
                      </div>
                 </td>
                 <td>
                      <div class="form-floating" >
-                         <input type="date" class="form-control" >
+                         <input id = "a2" type="date" class="form-control" >
                          <label>Đến ngày</label>    
                      </div>
                 </td>
             </tr>
             <tr>
                 <td colspan="2">
-                    <div class="form-floating" >
-                        <input list="list_chinhanh" type="text" class="form-control" >
-                        <datalist id="list_chinhanh">
-                           
-                        </datalist>
-                        <label>Chi nhánh</label>    
+                 <div class="form-floating" >
+                         <select class="form-select"  id="chon_cn" placeholder="Chi nhánh" multiple >
+                                  ${dschinhanh.map(cn => `<option>${u(cn)}</option>`).join('')}
+                         </select>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                 <div class="form-floating" >
+                         <select class="form-select"  id="chon_kh" placeholder="Khách hàng" multiple >
+                                  ${taolocds(dt,4).map(cn => `<option>${u(cn)}</option>`).join('')}
+                         </select>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                 <div class="form-floating" >
+                         <select class="form-select"  id="chon_nv" placeholder="NV kinh doanh" multiple >
+                                  ${ taolocds(tt_nv,4).map(cn => `<option>${u(cn)}</option>`).join('')}
+                         </select>
                     </div>
                 </td>
             </tr>
@@ -100,7 +244,8 @@ function timkiem(){
                     <button onclick="xembc()" class="btn btn-primary w-100 mt-2">Xem báo cáo</button>
                 </td>
             </tr>
-        </table>`)
+        </table>`) , choncn = new Choices('#chon_cn',  {  removeItemButton: false  }) , chonkh = new Choices('#chon_kh',  {  removeItemButton: false  }) , chonnv = new Choices('#chon_nv',  {  removeItemButton: false  });
+
 }
 
         function tao_tbthicap(){
