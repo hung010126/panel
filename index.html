@@ -17,25 +17,8 @@
 
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.css">
      <script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/searchbuilder/1.7.1/css/searchBuilder.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/5.0.1/css/fixedColumns.dataTables.min.css">
-    <link href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css" rel="stylesheet" type="text/css">
-    
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/searchbuilder/1.7.1/js/dataTables.searchBuilder.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.print.min.js"></script>
-    <script src="https://cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js"></script>
-    <script src="https://cdn.datatables.net/fixedcolumns/5.0.1/js/dataTables.fixedColumns.min.js"></script>
-    <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script> 
+     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+   
 
    
 
@@ -85,7 +68,171 @@
   background-color: #555;
 }
 
+  .table-wrapper {
+          /* Tính toán chiều cao: 100% màn hình trừ đi khoảng 180px (chiều cao của Navbar + Tiêu đề + Padding) */
+    /* Bạn hãy điều chỉnh số 180px này tăng/giảm sao cho vừa khít màn hình của bạn */
+    height: calc(100vh - 60px); 
+    
+    /* Bắt buộc có cái này để scroll xuất hiện TẠI ĐÂY thay vì scroll cả trang web */
+    overflow: auto; 
+    
+    /* Giữ layout ổn định */
+    display: block;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
 
+        /* 2. CẤU HÌNH CHO HEADER (TH) */
+
+table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 100; /* Cao nhất để đè lên mọi thứ */
+    background-color: #003f5c; 
+    color: white;
+    height: 45px; /* Cố định chiều cao để dễ tính toán các dòng dưới */
+    box-shadow: inset 0 -1px 0 #ccc; /* Giả làm đường viền dưới */
+}
+
+/* Sửa lỗi hiển thị bảng */
+table {
+    width: 100%;
+    border-collapse: separate; /* Đôi khi collapse làm mất sticky border */
+    border-spacing: 0;
+}
+
+tr.row-grand-total td {
+    position: sticky;
+    /* Cách top bằng chiều cao của Header */
+    top: 45px; 
+    
+    z-index: 90; /* Thấp hơn header, cao hơn nội dung thường */
+    background-color: #f8bfbe !important; /* Màu nền bắt buộc */
+    color: white;
+    font-weight: bold;
+   
+}
+
+/* --- 3. DÒNG TỔNG NHÂN VIÊN (Level 3) --- */
+tr.row-staff-total td {
+    position: sticky;
+    /* Cách top = (Chiều cao Header + Chiều cao Grand Total) */
+    /* 45px + 45px = 90px */
+    top: 90px; 
+    
+    z-index: 80; /* Thấp hơn Grand Total */
+    background-color: #edebe5 !important; /* Màu nền bắt buộc */
+    color: #333;
+    font-weight: bold;
+   
+}
+
+     .table-wrapper table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1800px; /* Đảm bảo bảng không bị co quá nhỏ */
+            font-size: 13px;
+        }
+
+      .table-wrapper  th, .table-wrapper td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: right; /* Mặc định số căn phải */
+        }
+
+        /* Header */
+      .table-wrapper th {
+            background-color: #003f5c;
+            color: white;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        /* Căn trái cho các cột Text (ID, Mã, Tên, NV) */
+        .text-left { text-align: left !important; }
+        .text-name{ text-align: left !important; 
+            max-width: 300px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        
+        position: sticky;
+        left: 0;
+    /* Tạo vách ngăn bóng đổ để phân biệt cột dính và nội dung trượt */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1); 
+    border-right: 1px solid #ccc;
+        
+        }
+
+  thead th.text-name {
+    z-index: 110 !important; /* Cao hơn tất cả */
+    background-color: #003f5c; /* Màu của Header */
+    /* Đảm bảo top vẫn dính (thừa hưởng từ css trước nhưng nhắc lại cho chắc) */
+    top: 0; 
+}
+
+/* B. GIAO ĐIỂM: Hàng Tổng Toàn Cục + Cột 1 */
+tr.row-grand-total td.text-name {
+    z-index: 95 !important; /* Cao hơn hàng tổng thường (90), thấp hơn Header (110) */
+    background-color: #ff6361 !important; /* Màu của Grand Total */
+    /* Top đã được set là 45px ở CSS trước */
+}
+
+/* C. GIAO ĐIỂM: Hàng Tổng Nhân Viên + Cột 1 */
+tr.row-staff-total td.text-name {
+    z-index: 85 !important; /* Cao hơn hàng nhân viên thường (80), thấp hơn Grand Total (95) */
+    background-color: #ffa600 !important; /* Màu của Staff Total */
+    /* Top đã được set là 90px ở CSS trước */
+}
+
+/* D. CỘT 1 CỦA DÒNG CHI TIẾT BÌNH THƯỜNG */
+tbody tr td.text-name {
+    z-index: 10; /* Chỉ cần cao hơn nội dung bình thường (0) */
+    background-color: #fff; /* Màu nền mặc định, KHÔNG ĐƯỢC trong suốt */
+}
+
+/* E. KHI HOVER VÀO DÒNG CHI TIẾT */
+/* Fix lỗi khi hover dòng, ô sticky bị mất màu hover */
+tbody tr:hover td.text-name {
+    background-color: #f1f1f1;
+}
+
+        /* Hàng Tổng Toàn Cục */
+        .row-grand-total {
+            background-color: #f09c9c;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Hàng Tổng Nhân Viên (Header nhóm) */
+        .row-staff-total {
+            background-color: #c7c7c7;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+        .row-staff-total:hover { background-color: #ffb627; }
+
+        /* Hàng Chi Tiết */
+        .row-detail { background-color: #fff; }
+        .row-detail:hover { background-color: #f1f1f1; }
+        
+        /* Ẩn hiện */
+        .hidden { display: none; }
+        
+        /* Icon mũi tên */
+        .toggle-icon {
+            display: inline-block;
+            margin-right: 5px;
+            transition: transform 0.2s;
+        }
+        .open .toggle-icon { transform: rotate(90deg); }
 
     </style>
     <body class="sb-nav-fixed">
