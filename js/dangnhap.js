@@ -6,7 +6,7 @@
   
 function dangnhap(){
          if(user == '' || user == null || user == undefined || timelog == undefined || timelog == '') return  window.location.href = 'login.html'
-         var gio = new Date().getTime() , tru = gio - timelog , tr = tru / (1000 * 60 * 60) ; if(tr > 72 )  return  thoat()
+         var gio = new Date().getTime() , tru = gio - timelog , tr = tru / (1000 * 60 * 60) ; if(tr > 72 )  return  thoat() // hạn chế thời gian sử dụng 3 ngày đăng nhập
          var tt = JSON.parse(user) , ten = tt['ten'] ; console.log(tt) ; tk = tt ; nhapval('#tkdn',`<div class="small">Xin chào:</div>${ten}`,2)
                  tao_dtxem()
         }
@@ -44,9 +44,10 @@ function xembc(){
          if(tu == '' || den == '') return alert('Vui lòng chọn khoảng thời gian!')
          var n_t = new Date(tu).getTime() , n_d = new Date(den).getTime() ; if(n_d < n_t) return alert('Ngày đến phải lớn hơn ngày từ!')
          var cn = $('#chon_cn').val() , kh = $('#chon_kh').val().toString() , nv = $('#chon_nv').val().toString()
-       console.log({cn,kh,nv}) 
+       console.log({cn,kh,nv})
+       
          var gach = Object.groupBy(
-                           tt_gach.filter(v => { var ngay_gach = gettime(u(v[4])) , loc = cn.length == 0 ? 0 : cn.findIndex(kt => kt == u(v[0])) ; return ngay_gach >= 0 && ngay_gach <= n_d && u(v[3]) == '' && loc >= 0  ? true : false })
+                           tt_gach.filter(v => { var ngay_gach = gettime(u(v[4])) , loc = cn.length == 0 ? 0 : cn.findIndex(kt => kt == u(v[0])) ; return ngay_gach >= 1 && ngay_gach <= n_d && u(v[3]) == '' && loc >= 0  ? true : false })
                            .map(v => {
                             kq.push(  [u(v[5]),ns(u(v[6])) ,u(v[4]), u(v[7]) ,'gach'  ,0        , 0       , ''  ]  )
                             return [u(v[5]),ns(u(v[6])),v[0]] })
@@ -54,7 +55,7 @@ function xembc(){
                           
 
           var ghi = Object.groupBy(
-                          tt_ghi.filter(v => { var ngay_ghi = gettime(u(v[4])) , loc = cn.length == 0 ? 0 : cn.findIndex(kt => kt == u(v[0]))  ; return ngay_ghi >= 0 && ngay_ghi <= n_d && loc >= 0 && u(v[3]) == '' ? true : false }) 
+                          tt_ghi.filter(v => { var ngay_ghi = gettime(u(v[4])) , loc = cn.length == 0 ? 0 : cn.findIndex(kt => kt == u(v[0]))  ; return ngay_ghi >= 1 && ngay_ghi <= n_d && loc >= 0 && u(v[3]) == '' ? true : false }) 
                           .map(d => {
                             kq.push([u(d[6]),ns(u(d[15])),u(d[4]),'-'      ,'ghi'   ,ns(u(d[13])) ,ns(u(d[14])) ,u(d[8]) ])
                             return [ `${u(d[4])}<@>${u(d[5])}<@>${u(d[6])}<@>${u(d[8])}<@>${u(d[12])}` ,ns(d[10]),ns(d[13]),ns(d[14]),ns(d[15]),gettime(d[4]),d[0] ] })
@@ -84,6 +85,9 @@ function xembc(){
         var sotong = sogg + tongtien
         var pl = tinh_pl( thm ,sotong , tienhm)
         var sotong_qh = (sotong * -1) > tienhm ? tienhm - (sotong * -1) : sotong
+        if(iddt == "DT_133425_193410_100"){
+            console.log({ sogg , tongtien ,sotong , sotong_qh , tienhm , thm  , timg })
+        }
         bang_t2.push([ngay,idnv,iddt,nhomhang,tuyen, tongmang(nd,1), tongmang(nd,2), tongmang(nd,3), tongtien , sotong_qh   , thm , tienhm , pl.l1 , pl.l2 , sogg
          , sotong >= 0 ? '' : (sotong * -1) > tienhm ? 'Quá hạn' : thm > ns(han_muc) ? 'Quá hạn'  : '' 
          , thm - ns(han_muc) , ns(han_muc) 
@@ -91,7 +95,7 @@ function xembc(){
          ])  
     }         
       
-
+    console.log(bang_t2.filter(zz => isNaN(Number(zz[9])) == true   ))
 
     var g0 = gomdt(dt,0), g1 = gomdt(nv,0) 
     var gom_bangt2 = Object.groupBy(bang_t2.sort( (qha,qhb) => { return gettime(qha[0]) - gettime(qhb[0])}) ,r => r[2])
@@ -129,16 +133,102 @@ function xembc(){
          // (dauky*-1) + (phaithu*-1) + tongthu + (Number(congnotronghan.toFixed(1))*-1) + qh_nn + conlai + coc_nn + themcoc
         var so_hienthi = (dauky*-1) + (phaithu*-1) + tongthu + (Number(congnotronghan.toFixed(1))*-1) + qh_nn + conlai + coc_nn + themcoc
         if(so_hienthi > 0){
-              kq_kh.push([kz,makh,tenkh,dauky*-1,phaithu*-1,tongthu,rong,c31,c61, Number(congnotronghan.toFixed(1)) *-1 , qh_nn , qh_30nn , qh_3060nn , qh_60nn
-         ,coc_nn + themcoc ,chietkhau,vanchuyen,thue,conlai*-1,hm[kz] == undefined ? 'Emty NV' : hm[kz][0][1] ])
+              kq_kh.push([kz,makh,tenkh,parseInt(dauky*-1),parseInt(phaithu*-1),parseInt(tongthu),parseInt(rong),parseInt(c31),parseInt(c61), parseInt(Number(congnotronghan.toFixed(1)) *-1) , parseInt(qh_nn) , parseInt(qh_30nn) , parseInt(qh_3060nn) , parseInt(qh_60nn)
+         ,parseInt(coc_nn + themcoc) ,parseInt(chietkhau),parseInt(vanchuyen),parseInt(thue),parseInt(conlai*-1),hm[kz] == undefined ? 'Emty NV' : hm[kz][0][1] ])
         }
 
         
       }                                                                 
     }
-
+    hienthi_kq(kq_kh,kh,nv)
     console.log({kq_kh,gom_bangt2})
 }
+
+function hienthi_kq(kq, l1, l2){
+     nhapinner('kq',`<div class="table-wrapper">
+        <table id="debtTable">
+            <thead>
+                <tr>
+                    <th  class = "text-name" >Tên khách hàng</th>
+                    <th>Nợ đầu kỳ</th>
+                    <th>Phải thu doanh số</th>
+                    <th>Tổng thu</th>
+                    <th>Thu trong hạn & < 30 ngày</th>
+                    <th>Thu quá hạn 31-60 ngày</th>
+                    <th>Thu quá hạn > 60 ngày</th>
+                    <th>CN trong hạn</th>
+                    <th>Tổng CN quá hạn</th>
+                    <th>CN quá hạn < 30 ngày</th>
+                    <th>CN quá hạn 31-60 ngày</th>
+                    <th>CN quá hạn > 60 ngày</th>
+                    <th>Khách cọc đơn</th>
+                    <th>Chiết khấu</th>
+                    <th>Vận chuyển</th>
+                    <th>Tiền thuế GTGT</th>
+                    <th>Còn lại</th>
+                    <th>Nhân Viên</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">${tinhmang_kqkh(kq,l1,l2)}</tbody>
+        </table>
+    </div>`)
+ modal_tat()
+    }
+
+   function tinhmang_kqkh(dt,l1,l2){
+  var kq_kh = [] ;console.log({l1,l2}) 
+  dt.forEach(r => {
+      if(checkloc(l1,u(r[2])) == 'ok' && checkloc(l2,u(r[19])) == 'ok'){kq_kh.push(r)}
+  })
+         var gom = Object.groupBy(kq_kh,v => v[19]) , m = '' , stt = 0
+         m += `<tr class = "row-grand-total">
+              <td   class = "text-name" ><strong>Tổng cộng :</strong></td>
+                ${Array(16).fill().map((zz,vt) => {  return '<td>'+tongmang(kq_kh,vt+ 3).toLocaleString('vi')+'</td>' }).join('') }
+              <td></td>
+         </tr>`
+
+         for(const[nv,nd] of Object.entries(gom)){
+          m += `<tr class = "row-staff-total"  onclick="toggleGroup('group-${stt}', this)">
+              <td  class = "text-name" ><span class="toggle-icon">▶</span><strong>Cộng :${nv}</strong></td>
+                ${Array(16).fill().map((zz,vt) => {  return '<td>'+tongmang(nd,vt+ 3).toLocaleString('vi')+'</td>' }).join('') }
+              <td class = "text-left" >${nv}</td>
+         </tr>`
+               nd.forEach( vv => {
+                m += `<tr class = "row-detail group-${stt} hidden">
+                      ${vv.slice(2).map((zb,zt)  => { return  zt == vv.length - 3 ? `<td class = "text-left">${zb}</td>` 
+                      : zt == 0 ? `<td  class = "text-name">${zb}</td>`
+                      : `<td >${ns(zb).toLocaleString('vi')}</td>` }).join('') }
+                </tr>`
+               })
+          stt++
+         }
+
+
+         return m
+}
+
+function checkloc(l,nd){
+      if(l == '') return 'ok'
+      var so = 0
+      l.split(',').forEach(z => {
+           var nv = z.trim().toUpperCase() ; if(nd.toUpperCase().indexOf(nv) >= 0){so++}
+      })
+      return so > 0 ? 'ok' : 'no'
+}
+
+    // 3. HÀM TOGGLE (ẨN/HIỆN)
+    function toggleGroup(groupId, headerElement) {
+        // Toggle class 'hidden' cho các dòng chi tiết
+        const details = document.getElementsByClassName(groupId);
+        for (let row of details) {
+            row.classList.toggle('hidden');
+        }
+        // Toggle class 'open' cho dòng header để xoay mũi tên
+        headerElement.classList.toggle('open');
+      
+     
+}
+
 
 function tinhmax(dz){
      var dt = dz.sort( (za,zb) => {return zb[9] - za[9] } )
