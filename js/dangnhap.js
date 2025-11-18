@@ -173,6 +173,7 @@ function hienthi_kq(kq, l1, l2){
         </table>
     </div>`)
  modal_tat()
+ tt_tim = 'no'
     }
 
    function tinhmang_kqkh(dt,l1,l2){
