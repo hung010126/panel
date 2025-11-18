@@ -266,6 +266,14 @@ function nhapinner(x,nd){
   } else {
     return 0
   }
-}   
-
+} 
+var motngay = 24*60*60*1000
+function ns(x){return isNaN(Number(x)) == true ? Number(u(x).split('.').join('').split(',').join('.')) : Number(x)}
+function gomdt(dt,cot){return Object.groupBy(dt,r => { return `${u(r[2]) !== '' ? 'Bỏ' : u(r[cot])}` })}
+function tongmang(array,cot) {
+  if(array == undefined) return 0
+  return array.reduce((batdau,r) => {
+         return Number(u(batdau)) + Number(u(r[cot]))
+    },0);
+}
   
