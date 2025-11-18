@@ -202,7 +202,7 @@ th.dtfc-fixed-left {
   color: rgb(9, 153, 14);
 }
 .modal_phai{
-  z-index:30;
+  z-index:4000;
   position: fixed;
   top: 0;
   left: 0;
