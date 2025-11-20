@@ -24,6 +24,51 @@
 
     </head>
     <style>
+/* 1. Style cho thanh chứa nút (UL) */
+    .button-bar {
+        list-style: none;      /* Bỏ dấu chấm đầu dòng */
+        padding: 0;
+        margin: 20px 0;
+        display: flex;         /* Xếp ngang */
+        gap: 10px;             /* Khoảng cách giữa các nút */
+        justify-content: center; /* Căn giữa (hoặc để flex-start nếu muốn căn trái) */
+    }
+
+    /* 2. Style cho từng nút (LI) */
+    .btn-report {
+        padding: 10px 20px;
+        background-color: #e0e0e0; /* Màu nền nút chưa chọn */
+        border-radius: 5px;        /* Bo tròn góc cho giống nút */
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+        user-select: none;
+    }
+
+    .btn-report:hover {
+        background-color: #d0d0d0;
+    }
+
+    /* 3. Style khi nút được chọn (Active) */
+    .btn-report.active {
+        background-color: #007bff; /* Màu xanh khi chọn */
+        color: white;
+    }
+
+    /* 4. Khu vực nội dung */
+    .report-content {
+        display: none; /* Mặc định ẩn hết */
+        padding: 2px;
+        margin-top: 10px;
+        background: #fff;
+    }
+
+    /* Class để hiện nội dung */
+    .report-content.active {
+        display: block;
+    }
+    
+    
 .loader {
   border: 16px solid #f3f3f3;
   border-radius: 50%;
