@@ -2,7 +2,7 @@
   let link = window.location.href ;
   let user = localStorage.dangnhap ;
   let timelog = localStorage.timelg ;
-  let tk = '' , dt = [] , tt_nv = [] , tt_hm = [] , tt_ghi = [] , tt_gach = [] , dschinhanh = []  ; 
+  let tk = '' , dt = [] , tt_nv = [] , tt_hm = [] , tt_ghi = [] , tt_gach = [] , dschinhanh = [] , tt_kpi = []  ; 
   
 function dangnhap(){
          if(user == '' || user == null || user == undefined || timelog == undefined || timelog == '') return  window.location.href = 'login.html'
@@ -27,6 +27,7 @@ body:JSON.stringify(obj)
           tt_hm = ar.hm
           tt_ghi =ar.dt_ghi 
           tt_gach = ar.dt_gach
+          tt_kpi = ar.kpi
           dschinhanh = ar.dschinhanh 
           nhapinner('kq',`<div class ="text-center" style="margin-top:20px;color:red;">Vui lòng bấm nút tìm kiếm để xem báo cáo!</div>`)
           timkiem()
@@ -40,7 +41,8 @@ body:JSON.stringify(obj)
 function xembc(){
          var tu = val('#a1',1) , den = val('#a2',1) , kq = [] 
          if(tu == '' || den == '') return alert('Vui lòng chọn khoảng thời gian!')
-         var n_t = new Date(tu).getTime() , n_d = new Date(den).getTime() ; if(n_d < n_t) return alert('Ngày đến phải lớn hơn ngày từ!')
+         var [y1,m1,d1] = tu.split('-') , [y2,m2,d2] = den.split('-')
+         var n_t = new Date(y1,Number(m1)-1,d1,0,0,0).getTime() , n_d = new Date(y2,Number(m2)-1,d2,0,0,0).getTime() ; if(n_d < n_t) return alert('Ngày đến phải lớn hơn ngày từ!')
          var cn = $('#chon_cn').val() , kh = $('#chon_kh').val().toString() , nv = $('#chon_nv').val().toString()
        console.log({cn,kh,nv})
        
@@ -83,9 +85,9 @@ function xembc(){
         var sotong = sogg + tongtien
         var pl = tinh_pl( thm ,sotong , tienhm)
         var sotong_qh = (sotong * -1) > tienhm ? tienhm - (sotong * -1) : sotong
-        if(iddt == "DT_133425_193410_100"){
-            console.log({ sogg , tongtien ,sotong , sotong_qh , tienhm , thm  , timg })
-        }
+       // if(iddt == "DT_133425_193410_100"){
+       //     console.log({ sogg , tongtien ,sotong , sotong_qh , tienhm , thm  , timg })
+       // }
         bang_t2.push([ngay,idnv,iddt,nhomhang,tuyen, tongmang(nd,1), tongmang(nd,2), tongmang(nd,3), tongtien , sotong_qh   , thm , tienhm , pl.l1 , pl.l2 , sogg
          , sotong >= 0 ? '' : (sotong * -1) > tienhm ? 'Quá hạn' : thm > ns(han_muc) ? 'Quá hạn'  : '' 
          , thm - ns(han_muc) , ns(han_muc) 
@@ -109,7 +111,7 @@ function xembc(){
         var rong = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[3]).trim() == '' ),1)
         var c31  = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[3]).trim() == '31' ),1)
         var c61  = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[3]).trim() == '61' ),1)
-        var coc  = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[3]).toUpperCase().trim() == 'CỌC' ),1)
+        var coc  = tongmang(nz.filter(bb => gettime(u(bb[2])) > 0 && gettime(u(bb[2])) <= n_d  && u(bb[3]).toUpperCase().trim() == 'CỌC' ),1)
         var chietkhau = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[4]) == 'ghi' ),5)
         var thue = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[4]) == 'ghi' ),6)
         var vanchuyen = tongmang(nz.filter(bb => gettime(u(bb[2])) >= n_t && gettime(u(bb[2])) <= n_d  && u(bb[4]) == 'ghi' && u(bb[7]).toUpperCase().trim() == 'VC' ),1)
@@ -138,13 +140,160 @@ function xembc(){
         
       }                                                                 
     }
-    hienthi_kq(kq_kh,kh,nv)
-    console.log({kq_kh,gom_bangt2})
+
+    var loc = locdtxem(kq_kh,kh,nv)
+    var dthu = tinhdoanhthu(loc,tt_nv,tt_kpi)
+    var dso = tinhds(gom_bangt2,n_t,n_d,tt_nv,kq_kh)
+    hienthi_kq(loc,dthu,dso)
+    console.log({kq_kh,loc,kh,nv,gom_bangt2})
 }
 
-function hienthi_kq(kq, l1, l2){
+function tinhds(gom_bangt2,n_t,n_d,tt_nv,kq_kh){
+   var g = [] , ds = [], htt = '', gomnv = Object.groupBy(tt_nv , v => `${u(v[2]) !== '' ? 'Bỏ' : u(v[0]) }` ) ; for(const[key,nd] of Object.entries(gom_bangt2)){
+       var dk = nd.filter(bb => gettime(u(bb[0])) >= n_t && gettime(u(bb[0])) <= n_d  )
+       if(dk.length !== 0){
+          dk.forEach(b => {  var nsu = gomnv[b[1]] == undefined ? 'Emty' : gomnv[b[1]][0][4] ; g.push([ nsu+'<@>'+b[3] , b[3] , ns(b[5]) , ns(b[8])   ]) })
+       }
+   }
+    var gomnvv = Object.groupBy(tt_nv , v => `${u(v[2]) !== '' ? 'Bỏ' : u(v[4]) }` ) , gomkpi = Object.groupBy(tt_kpi , v => u(v[0]) ) , gom_1 = Object.groupBy(g , v => v[0] ) ,   gom_2 = Object.keys(Object.groupBy(g , v => v[1] ) ) , gomdt = Object.groupBy(kq_kh , v => v[19] )
+     for(const[nv,nd] of Object.entries(gomdt)){
+             var idnv = gomnvv[nv] == undefined ? 'Emty' : gomnvv[nv][0][0]
+             var team = idnv == 'Emty' ? 'Emty' : gomkpi[idnv] == undefined ? 'Emty' : gomkpi[idnv].sort((kn,km) => {return  gettime(km[2]) - gettime(kn[2]) })[0][4]
+             var tinh = [] , tong = 0 ; gom_2.forEach(h => {
+                var sl = 0 , tien = 0 , chon = gom_1[nv+'<@>'+h]
+                if(chon !==undefined){
+                   sl = tongmang(chon,2)
+                   tien = tongmang(chon,3)
+                }
+
+                tinh.push(sl)   
+                tinh.push(tien)   
+                tong += tien
+             })
+             ds.push([].concat([  team , nv , tong ] , tinh))
+            }
+
+              htt += `<tr class = "row-grand-total">
+              <td   class = "text-name" ><strong>Tổng cộng :</strong></td>
+               ${Array( (gom_2.length * 2) + 1 ).fill().map((zz,vt) => {  return '<td>'+tongmang(ds,vt+2).toLocaleString('vi')+'</td>' }).join('') }
+            </tr>`
+
+              var gds = Object.groupBy(ds , v => v[0] ) ; for(const[team,nd] of Object.entries(gds)){
+              htt += `<tr class = "row-staff-total"  onclick="toggleGroup('group-dt-${team}', this)">
+                     <td  class = "text-name" ><span class="toggle-icon">▶</span><strong>Cộng :${team}</strong></td>
+                       ${Array( (gom_2.length * 2) + 1 ).fill().map((zz,vt) => {  return '<td>'+tongmang(nd,vt+2).toLocaleString('vi')+'</td>' }).join('') }
+              </tr>`
+              nd.forEach( dtvv => { 
+                htt += `<tr class = "row-detail group-dt-${team} hidden">
+                           <td  class = "text-name">${dtvv[1]}</td>
+                           ${dtvv.slice(2).map((zb,zt)  => { return `<td >${ns(zb).toLocaleString('vi')}</td>` }).join('')}
+                </tr>`
+              })
+        }
+
+
+
+
+    return `<table id="debtTable">
+            <thead>
+                <tr>
+                    <th  class = "text-name" >Tên khách hàng</th>
+                    <th>Tổng</th>
+                    ${gom_2.map(cot => `<th>${cot}</th><th>Tiền ${cot}</th>`).join('')}
+                </tr>
+            </thead>
+            <tbody>${htt}
+            </tbody>
+            </table>`
+    
+     
+
+}
+
+function locdtxem(dt,l1,l2){
+  var kq_kh = [] ; dt.forEach(r => {
+      if(checkloc(l1,u(r[2])) == 'ok' && checkloc(l2,u(r[19])) == 'ok'){kq_kh.push(r)}
+  })
+  return kq_kh
+}
+
+
+function tinhdoanhthu(kq_kh,tt_nv,tt_kpi){
+         var ds = [] , tb = '' , s1 = 0 , s2 = 0 , s3 = 0 , s4 = 0 , s5 = 0, gomdt = Object.groupBy(kq_kh , v => v[19] ) , gomnv = Object.groupBy(tt_nv , v => `${u(v[2]) !== '' ? 'Bỏ' : u(v[4]) }` ) , gomkpi = Object.groupBy(tt_kpi , v => u(v[0]) )
+        for(const[nv,nd] of Object.entries(gomdt)){
+             var idnv = gomnv[nv] == undefined ? 'Emty' : gomnv[nv][0][0]
+             var team = idnv == 'Emty' ? 'Emty' : gomkpi[idnv] == undefined ? 'Emty' : gomkpi[idnv].sort((kn,km) => {return  gettime(km[2]) - gettime(kn[2]) })[0][4]
+             var kpikhoan = idnv == 'Emty' ? 'Emty' : gomkpi[idnv] == undefined ? 'Emty' : gomkpi[idnv].sort((kn,km) => {return  gettime(km[2]) - gettime(kn[2]) })[0][3] 
+             var nodk = tongmang(nd,3) ; s1 += nodk
+             var phaithu = tongmang(nd,4) ; s2 += phaithu
+             var tongthu = tongmang(nd,5) ; s3 += tongthu
+             var coc = tongmang(nd,14) ; s4 += coc
+             var dnck = tongmang(nd,18) ; s5 += dnck
+             ds.push([  team , kpikhoan , nv , nodk , phaithu , tongthu , coc , dnck])
+            }
+
+         tb += `<tr class = "row-grand-total">
+              <td   class = "text-name" ><strong>Tổng cộng :</strong></td>
+              <td>${Number(s1).toLocaleString('vi')}</td>
+              <td>${Number(s2).toLocaleString('vi')}</td>
+               <td></td>
+              <td>${Number(s3).toLocaleString('vi')}</td> 
+               <td></td>
+               <td></td>
+               <td>${Number(s4).toLocaleString('vi')}</td> 
+               <td>${Number(s5).toLocaleString('vi')}</td> 
+         </tr>`
+
+         var gds = Object.groupBy(ds , v => v[0] ) ; for(const[team,nd] of Object.entries(gds)){
+              tb += `<tr class = "row-staff-total"  onclick="toggleGroup('group-ds-${team}', this)">
+                     <td  class = "text-name" ><span class="toggle-icon">▶</span><strong>Cộng :${team}</strong></td>
+                      <td>${Number(tongmang(nd,3)).toLocaleString('vi')}</td>
+                      <td>${Number(tongmang(nd,4)).toLocaleString('vi')}</td>
+                       <td></td>
+                      <td>${Number(tongmang(nd,5)).toLocaleString('vi')}</td>
+                       <td></td>
+                       <td></td>
+                       <td>${Number(tongmang(nd,6)).toLocaleString('vi')}</td>
+                       <td>${Number(tongmang(nd,7)).toLocaleString('vi')}</td>
+              </tr>`
+              nd.forEach( vv => { 
+                tb += `<tr class = "row-detail group-ds-${team} hidden">
+                           <td  class = "text-name">${vv[2]}</td>
+                            <td>${Number(vv[3]).toLocaleString('vi')}</td>
+                            <td>${Number(vv[4]).toLocaleString('vi')}</td>
+                            <td>${achiab(vv[4],vv[1])}</td>
+                            <td>${Number(vv[5]).toLocaleString('vi')}</td>
+                            <td>${vv[1]}</td>
+                             <td>${achiab(vv[5],vv[1])}</td>
+                               <td>${Number(vv[6]).toLocaleString('vi')}</td>
+                               <td>${Number(vv[7]).toLocaleString('vi')}</td>
+                </tr>`
+              })
+        }
+
+
+            return tb
+        }
+function achiab(a,b){
+     var sa = ns(a) , sb = ns(b) ; if(isNaN(sa) || isNaN(sb) ) return 'Không phải số'
+     return (sa/sb*100).toFixed(2) + ' %'
+}
+function hienthi_kq(kq,dt,ds){
      nhapinner('kq',`
-        <div class="table-wrapper">
+    <ul class="button-bar">
+        <li class="btn-report active" onclick="openReport('cong-no', this)">
+            Báo cáo công nợ
+        </li>
+        <li class="btn-report" onclick="openReport('doanh-so', this)">
+            Báo cáo doanh số
+        </li>
+        <li class="btn-report" onclick="openReport('doanh-thu', this)">
+            Báo cáo doanh thu
+        </li>
+    </ul>
+
+    <div id="cong-no" class="report-content active">
+         <div class="table-wrapper">
         <table id="debtTable">
             <thead>
                 <tr>
@@ -168,16 +317,59 @@ function hienthi_kq(kq, l1, l2){
                     <th>Nhân Viên</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">${tinhmang_kqkh(kq,l1,l2)}</tbody>
+            <tbody id="tableBody">${tinhmang_kqkh(kq)}</tbody>
         </table>
+      </div>
+    </div>
+
+    <div id="doanh-so" class="report-content">
+            <div class="table-wrapper">${ds}</div>
+    </div>
+
+    <div id="doanh-thu" class="report-content">
+         <div class="table-wrapper">
+        <table id="debtTable">
+            <thead>
+                <tr>
+                    <th  class = "text-name" >Nhân Viên KD</th>
+                    <th>Nợ đầu kỳ</th>
+                    <th>Doanh số</th>
+                    <th>Tỷ lệ doanh số đạt được</th>
+                    <th>Doanh thu</th>
+                    <th>KPI khoán</th>
+                    <th>Tỷ lệ doanh thu đạt được</th>
+                    <th>Khách Cọc</th>
+                    <th>Dư nợ cuối kỳ</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">${dt}</tbody>
+        </table>
+      </div>
     </div>`)
     }
 
-   function tinhmang_kqkh(dt,l1,l2){
-  var kq_kh = [] ;console.log({l1,l2}) 
-  dt.forEach(r => {
-      if(checkloc(l1,u(r[2])) == 'ok' && checkloc(l2,u(r[19])) == 'ok'){kq_kh.push(r)}
-  })
+    function openReport(reportId, element) {
+            // 1. Ẩn tất cả các nội dung báo cáo
+            var contents = document.getElementsByClassName('report-content');
+            for (var i = 0; i < contents.length; i++) {
+                contents[i].classList.remove('active');
+            }
+
+            // 2. Bỏ trạng thái active ở tất cả các nút
+            var buttons = document.getElementsByClassName('btn-report');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('active');
+            }
+
+            // 3. Hiện nội dung tương ứng với ID được bấm
+            document.getElementById(reportId).classList.add('active');
+
+            // 4. Đổi màu nút vừa bấm thành active
+            element.classList.add('active');
+        }
+
+   function tinhmang_kqkh(kq_kh){
+  
          var gom = Object.groupBy(kq_kh,v => v[19]) , m = '' , stt = 0
          m += `<tr class = "row-grand-total">
               <td   class = "text-name" ><strong>Tổng cộng :</strong></td>
