@@ -28,10 +28,8 @@ body:JSON.stringify(obj)
           tt_ghi =ar.dt_ghi 
           tt_gach = ar.dt_gach
           dschinhanh = ar.dschinhanh 
-          nhapinner('kq',`<table id="dt_end" class="display bg-light" style="width:100%">                      
-                                 <thead style="background:#4076fb"></thead>
-                    </table>`)
-                    timkiem()
+          nhapinner('kq',`<div class ="text-center" style="margin-top:20px;color:red;">Vui lòng bấm nút tìm kiếm để xem báo cáo!</div>`)
+          timkiem()
     } else {
         alert(dt.tb+'\nVui lòng F5 sau ít phút!')
     }
@@ -129,12 +127,12 @@ function xembc(){
         var qh_3060nn = conlai == 0 ? 0 :  qh.t30_60*-1
         var qh_60nn = conlai == 0 ? 0 :  qh.t60*-1
         var coc_nn = conlai == 0 ? 0 :  coc
-
+        var conlai_n = dauky + phaithu + tongthu - Number(congnotronghan.toFixed(1)) + qh_nn -(coc_nn + themcoc)
          // (dauky*-1) + (phaithu*-1) + tongthu + (Number(congnotronghan.toFixed(1))*-1) + qh_nn + conlai + coc_nn + themcoc
         var so_hienthi = (dauky*-1) + (phaithu*-1) + tongthu + (Number(congnotronghan.toFixed(1))*-1) + qh_nn + conlai + coc_nn + themcoc
         if(so_hienthi > 0){
               kq_kh.push([kz,makh,tenkh,parseInt(dauky*-1),parseInt(phaithu*-1),parseInt(tongthu),parseInt(rong),parseInt(c31),parseInt(c61), parseInt(Number(congnotronghan.toFixed(1)) *-1) , parseInt(qh_nn) , parseInt(qh_30nn) , parseInt(qh_3060nn) , parseInt(qh_60nn)
-         ,parseInt(coc_nn + themcoc) ,parseInt(chietkhau),parseInt(vanchuyen),parseInt(thue),parseInt(conlai*-1),hm[kz] == undefined ? 'Emty NV' : hm[kz][0][1] ])
+         ,parseInt(coc_nn + themcoc) ,parseInt(chietkhau),parseInt(vanchuyen),parseInt(thue),parseInt(conlai_n),hm[kz] == undefined ? 'Emty NV' : hm[kz][0][1] ])
         }
 
         
@@ -145,7 +143,8 @@ function xembc(){
 }
 
 function hienthi_kq(kq, l1, l2){
-     nhapinner('kq',`<div class="table-wrapper">
+     nhapinner('kq',`
+        <div class="table-wrapper">
         <table id="debtTable">
             <thead>
                 <tr>
@@ -172,8 +171,6 @@ function hienthi_kq(kq, l1, l2){
             <tbody id="tableBody">${tinhmang_kqkh(kq,l1,l2)}</tbody>
         </table>
     </div>`)
- modal_tat()
- tt_tim = 'no'
     }
 
    function tinhmang_kqkh(dt,l1,l2){
@@ -283,12 +280,7 @@ function taolocds(ar,cot){
    return Object.keys(g).filter(v => v != 'Bỏ') 
 }
 function timkiem(){
-  console.log(dschinhanh)
-  
-       if(tt_tim == 'ok') return tt_tim = 'no' , modal_tat() ;
-       if(tt_tim == 'no') return tt_tim = 'ok' , modalphai_mo(`
-        <h4 style = "margin-top:10px;;text-align:center;color:red;">Tìm Kiếm</h4>
-        <table style = "width:100%">
+      nhapinner('tim_kiem',`<table style = "width:100%">
             <tr>
                 <td>
                      <div class="form-floating" >
@@ -302,40 +294,37 @@ function timkiem(){
                          <label>Đến ngày</label>    
                      </div>
                 </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                 <div class="form-floating" >
+                <td>
+                       <div class="form-floating" >
                          <select class="form-select"  id="chon_cn" placeholder="Chi nhánh" multiple >
                                   ${dschinhanh.map(cn => `<option>${u(cn)}</option>`).join('')}
                          </select>
-                    </div>
+                      </div>
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td>
                  <div class="form-floating" >
                          <select class="form-select"  id="chon_kh" placeholder="Khách hàng" multiple >
                                   ${taolocds(dt,4).map(cn => `<option>${u(cn)}</option>`).join('')}
                          </select>
                     </div>
                 </td>
-            </tr>
-            <tr>
-                <td colspan="2">
+                <td>
                  <div class="form-floating" >
                          <select class="form-select"  id="chon_nv" placeholder="NV kinh doanh" multiple >
                                   ${ taolocds(tt_nv,4).map(cn => `<option>${u(cn)}</option>`).join('')}
                          </select>
                     </div>
                 </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <button onclick="xembc()" class="btn btn-primary w-100 mt-2">Xem báo cáo</button>
+                <td>
+                    <button onclick="xembc()" class="btn btn-primary w-100 mt-2">BÁO CÁO</button>
+                  
                 </td>
+
             </tr>
-        </table>`) , choncn = new Choices('#chon_cn',  {  removeItemButton: false  }) , chonkh = new Choices('#chon_kh',  {  removeItemButton: false  }) , chonnv = new Choices('#chon_nv',  {  removeItemButton: false  });
+        </table>`)
+        choncn = new Choices('#chon_cn',  {  removeItemButton: false  }) , chonkh = new Choices('#chon_kh',  {  removeItemButton: false  }) , chonnv = new Choices('#chon_nv',  {  removeItemButton: false  });
 
 }
 
