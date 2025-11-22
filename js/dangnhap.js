@@ -38,12 +38,22 @@ body:JSON.stringify(obj)
   })
 }
 
+function xemchon(id){
+                var container = document.getElementById(id);
+                var checkedItems = container.querySelectorAll('.item.checked');
+                var values = [];
+                checkedItems.forEach(function(item) {
+                    values.push(item.querySelector('.item-text').innerText);
+                });
+                return values;
+}
+
 function xembc(){
          var tu = val('#a1',1) , den = val('#a2',1) , kq = [] 
          if(tu == '' || den == '') return alert('Vui lòng chọn khoảng thời gian!')
          var [y1,m1,d1] = tu.split('-') , [y2,m2,d2] = den.split('-')
          var n_t = new Date(y1,Number(m1)-1,d1,0,0,0).getTime() , n_d = new Date(y2,Number(m2)-1,d2,0,0,0).getTime() ; if(n_d < n_t) return alert('Ngày đến phải lớn hơn ngày từ!')
-         var cn = $('#chon_cn').val() , kh = $('#chon_kh').val().toString() , nv = $('#chon_nv').val().toString()
+         var cn = xemchon('box-1') , kh = xemchon('box-2').join(',') , nv = xemchon('box-3').join(',')
        console.log({cn,kh,nv})
        
          var gach = Object.groupBy(
@@ -96,7 +106,7 @@ function xembc(){
     }         
       
     console.log(bang_t2.filter(zz => isNaN(Number(zz[9])) == true   ))
-
+    var tk = JSON.parse(user) , quyen = tk['quyen']
     var g0 = gomdt(dt,0), g1 = gomdt(nv,0) 
     var gom_bangt2 = Object.groupBy(bang_t2.sort( (qha,qhb) => { return gettime(qha[0]) - gettime(qhb[0])}) ,r => r[2])
     var gom_kh = Object.groupBy(kq,z => z[0]) , kq_kh = [] ; for(const[kz,nz] of Object.entries(gom_kh)){
@@ -125,16 +135,19 @@ function xembc(){
         var themcoc = (cuoiky - quahan).toFixed(0) > 0 ?  cuoiky - quahan : 0
 
         var qh_nn = conlai == 0 ? 0 :  Number(quahan.toFixed(1) ) *-1
-        var qh_30nn = conlai == 0 ? 0 :  qh.t30*-1
-        var qh_3060nn = conlai == 0 ? 0 :  qh.t30_60*-1
+        var qh_30nn = conlai == 0 ? 0 :   (qh.t30 - qh.t30_60) > 0  ? 0 :  (qh.t30 - qh.t30_60 )*-1 
+        var qh_3060nn = conlai == 0 ? 0 :  (qh.t30_60 -  qh.t60 ) > 0  ? 0 :  (qh.t30_60 -  qh.t60 )*-1 
         var qh_60nn = conlai == 0 ? 0 :  qh.t60*-1
         var coc_nn = conlai == 0 ? 0 :  coc
         var conlai_n = dauky + phaithu + tongthu - Number(congnotronghan.toFixed(1)) + qh_nn -(coc_nn + themcoc)
          // (dauky*-1) + (phaithu*-1) + tongthu + (Number(congnotronghan.toFixed(1))*-1) + qh_nn + conlai + coc_nn + themcoc
         var so_hienthi = (dauky*-1) + (phaithu*-1) + tongthu + (Number(congnotronghan.toFixed(1))*-1) + qh_nn + conlai + coc_nn + themcoc
-        if(so_hienthi > 0){
+        var nvxem = hm[kz] == undefined ? 'Emty NV' : hm[kz][0][1]
+        var dcxem = quyen == 'admin' ? 'ok' : tk['ten'] == nvxem ? 'ok' : 'no'
+       
+        if(so_hienthi > 0 && dcxem == 'ok' ){
               kq_kh.push([kz,makh,tenkh,parseInt(dauky*-1),parseInt(phaithu*-1),parseInt(tongthu),parseInt(rong),parseInt(c31),parseInt(c61), parseInt(Number(congnotronghan.toFixed(1)) *-1) , parseInt(qh_nn) , parseInt(qh_30nn) , parseInt(qh_3060nn) , parseInt(qh_60nn)
-         ,parseInt(coc_nn + themcoc) ,parseInt(chietkhau),parseInt(vanchuyen),parseInt(thue),parseInt(conlai_n),hm[kz] == undefined ? 'Emty NV' : hm[kz][0][1] ])
+         ,parseInt(coc_nn + themcoc) ,parseInt(chietkhau),parseInt(vanchuyen),parseInt(thue),parseInt(conlai_n), nvxem ])
         }
 
         
@@ -228,7 +241,8 @@ function tinhdoanhthu(kq_kh,tt_nv,tt_kpi){
              var phaithu = tongmang(nd,4) ; s2 += phaithu
              var tongthu = tongmang(nd,5) ; s3 += tongthu
              var coc = tongmang(nd,14) ; s4 += coc
-             var dnck = tongmang(nd,18) ; s5 += dnck
+             var dnck = nodk + phaithu - tongthu ; s5 += dnck // tongmang(nd,18) là theo cột còn lại
+             // tính cuối kỳ : đầu kỳ + phải thu - tổng thu
              ds.push([  team , kpikhoan , nv , nodk , phaithu , tongthu , coc , dnck])
             }
 
@@ -471,6 +485,14 @@ function taolocds(ar,cot){
    } )
    return Object.keys(g).filter(v => v != 'Bỏ') 
 }
+
+
+
+
+
+
+
+
 function timkiem(){
       nhapinner('tim_kiem',`<table style = "width:100%">
             <tr>
@@ -487,27 +509,79 @@ function timkiem(){
                      </div>
                 </td>
                 <td>
-                       <div class="form-floating" >
-                         <select class="form-select"  id="chon_cn" placeholder="Chi nhánh" multiple >
-                                  ${dschinhanh.map(cn => `<option>${u(cn)}</option>`).join('')}
-                         </select>
-                      </div>
+  
+    <div class="select-container" id="box-1">
+        
+        <div class="select-btn" onclick="toggleMenu('box-1', event)">
+            <span class="btn-text-placeholder">Chọn chi nhánh...</span>
+            <span class="arrow-wrapper">▼</span>
+        </div>
+
+        <div class="list-items">
+            <div class="dropdown-header">
+                <div class="search-box">
+                    <input type="text" placeholder="Tìm..." onkeyup="searchItem('box-1')" onclick="event.stopPropagation()">
+                </div>
+                <button class="clear-all-btn" onclick="clearAll('box-1', event)">Xóa hết</button>
+            </div>
+            <ul class="options-list">
+            ${dschinhanh.map(cn => `<li class="item" onclick="toggleItem(this, 'box-1')">
+                    <span class="checkbox"></span><span class="item-text">${u(cn) }</span>
+              </li>`).join('')}
+            </ul>
+        </div>
+    </div>
                 </td>
             </tr>
             <tr>
                 <td>
-                 <div class="form-floating" >
-                         <select class="form-select"  id="chon_kh" placeholder="Khách hàng" multiple >
-                                  ${taolocds(dt,4).map(cn => `<option>${u(cn)}</option>`).join('')}
-                         </select>
-                    </div>
+                    
+     <div class="select-container" id="box-2">
+        <div class="select-btn" onclick="toggleMenu('box-2', event)">
+            <span class="btn-text-placeholder">Chọn khách hàng...</span>
+            <span class="arrow-wrapper">▼</span>
+        </div>
+
+        <div class="list-items">
+            <div class="dropdown-header">
+                <div class="search-box">
+                    <input type="text" placeholder="Tìm..." onkeyup="searchItem('box-2')" onclick="event.stopPropagation()">
+                </div>
+                <button class="clear-all-btn" onclick="clearAll('box-2', event)">Xóa hết</button>
+            </div>
+            <ul class="options-list">
+                
+                 ${taolocds(dt,4).map(cn => `<li class="item" onclick="toggleItem(this, 'box-2')">
+                  <span class="checkbox"></span><span class="item-text">${u(cn)}</span>
+                  </li>`).join('')}
+             </ul>
+        </div>
+    </div>
                 </td>
                 <td>
-                 <div class="form-floating" >
-                         <select class="form-select"  id="chon_nv" placeholder="NV kinh doanh" multiple >
-                                  ${ taolocds(tt_nv,4).map(cn => `<option>${u(cn)}</option>`).join('')}
-                         </select>
-                    </div>
+               
+
+    <div class="select-container" id="box-3">
+        <div class="select-btn" onclick="toggleMenu('box-3', event)">
+            <span class="btn-text-placeholder">Chọn Nhân viên kd...</span>
+            <span class="arrow-wrapper">▼</span>
+        </div>
+
+        <div class="list-items">
+            <div class="dropdown-header">
+                <div class="search-box">
+                    <input type="text" placeholder="Tìm..." onkeyup="searchItem('box-3')" onclick="event.stopPropagation()">
+                </div>
+                <button class="clear-all-btn" onclick="clearAll('box-3', event)">Xóa hết</button>
+            </div>
+            <ul class="options-list">
+                
+              ${taolocds(tt_nv,4).map(cn => `<li class="item" onclick="toggleItem(this, 'box-3')">
+                <span class="checkbox"></span><span class="item-text">${u(cn)}</span>
+                </li>`).join('')}
+                </ul>
+        </div>
+    </div>
                 </td>
                 <td>
                     <button onclick="xembc()" class="btn btn-primary w-100 mt-2">BÁO CÁO</button>
@@ -516,9 +590,183 @@ function timkiem(){
 
             </tr>
         </table>`)
-        choncn = new Choices('#chon_cn',  {  removeItemButton: false  }) , chonkh = new Choices('#chon_kh',  {  removeItemButton: false  }) , chonnv = new Choices('#chon_nv',  {  removeItemButton: false  });
+        
 
 }
+
+// 1. Mở/Đóng Menu theo ID container
+        function toggleMenu(containerId, event) {
+            event.stopPropagation();
+            
+            var container = document.getElementById(containerId);
+            var listItems = container.querySelector('.list-items');
+            var btn = container.querySelector('.select-btn');
+
+            // Đóng tất cả các menu khác đang mở (UX tốt hơn)
+            closeAllMenus(containerId);
+
+            if (listItems.style.display === "block") {
+                listItems.style.display = "none";
+                btn.classList.remove("open");
+            } else {
+                listItems.style.display = "block";
+                btn.classList.add("open");
+                // Focus vào ô input của menu này
+                container.querySelector('input').focus();
+            }
+        }
+
+        // Hàm phụ: Đóng hết menu, trừ cái đang bấm (nếu có)
+        function closeAllMenus(exceptId = null) {
+            var allContainers = document.querySelectorAll('.select-container');
+            allContainers.forEach(function(cont) {
+                if (exceptId && cont.id === exceptId) return; // Bỏ qua cái đang click
+                
+                cont.querySelector('.list-items').style.display = "none";
+                cont.querySelector('.select-btn').classList.remove("open");
+            });
+        }
+
+        // 2. Chọn item
+        function toggleItem(itemElement, containerId) {
+            itemElement.classList.toggle('checked');
+            renderTags(containerId);
+        }
+
+        // 3. Render Tags (vẽ lại giao diện nút)
+        function renderTags(containerId) {
+            var container = document.getElementById(containerId);
+            var checkedItems = container.querySelectorAll('.item.checked');
+            var displayArea = container.querySelector('.select-btn');
+            
+            // Mảng chứa HTML của các tags
+            var html = '';
+
+            if (checkedItems.length > 0) {
+                checkedItems.forEach(function(item) {
+                    var text = item.querySelector('.item-text').innerText;
+                    // Lưu ý: truyền cả text và containerId vào hàm xóa
+                    html += `<span class="tag">${text} <span class="close-tag" onclick="removeTag('${text}', '${containerId}', event)">×</span></span>`;
+                });
+            } else {
+                // Lấy placeholder gốc tùy theo hộp
+                var placeholderText = "Chọn...";
+                if(containerId === 'box-1') placeholderText = "Chọn chi nhánh...";
+                if(containerId === 'box-2') placeholderText = "Chọn khách hàng...";
+                if(containerId === 'box-3') placeholderText = "Chọn Nhân viên kd...";
+                
+                html = `<span class="btn-text-placeholder">${placeholderText}</span>`;
+            }
+            
+            // Luôn thêm mũi tên ở cuối
+            html += '<span class="arrow-wrapper">▼</span>';
+            displayArea.innerHTML = html;
+        }
+
+        // 4. Xóa 1 tag
+        function removeTag(textStr, containerId, event) {
+            event.stopPropagation();
+            var container = document.getElementById(containerId);
+            var items = container.querySelectorAll('.item');
+
+            // Tìm và bỏ check item tương ứng
+            items.forEach(function(item) {
+                var itemText = item.querySelector('.item-text').innerText;
+                if (itemText === textStr) {
+                    item.classList.remove('checked');
+                }
+            });
+            renderTags(containerId);
+        }
+
+        // 5. Xóa hết
+        function clearAll(containerId, event) {
+            event.stopPropagation();
+            var container = document.getElementById(containerId);
+            var checkedItems = container.querySelectorAll('.item.checked');
+            
+            checkedItems.forEach(item => item.classList.remove('checked'));
+            
+            // Reset ô tìm kiếm của hộp này
+            var input = container.querySelector('input');
+            input.value = "";
+            searchItem(containerId); // Gọi search để hiện lại list đầy đủ
+
+            renderTags(containerId);
+        }
+
+        // 6. Tìm kiếm
+        function searchItem(containerId) {
+            var container = document.getElementById(containerId);
+            var filter = container.querySelector('input').value.toUpperCase();
+            var items = container.querySelectorAll('.item');
+
+            items.forEach(function(item) {
+                var txtValue = item.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        }
+
+        // 7. Click ra ngoài thì đóng TẤT CẢ
+        window.onclick = function(event) {
+            if (!event.target.closest('.select-container')) {
+                closeAllMenus();
+            }
+        }
+
+        function doimk(){
+          // Lấy phần tử theo ID
+        var myModalEl = document.getElementById('modalDoiMatKhau');
+        
+        // Khởi tạo đối tượng Modal của Bootstrap 5
+        var modal = new bootstrap.Modal(myModalEl);
+        
+        // Gọi lệnh hiển thị
+        modal.show();
+        }
+
+        function tatmodal_show(){
+        
+    var myModalEl = document.getElementById('modalDoiMatKhau');
+    
+    // 1. Lấy lại đối tượng modal đang hoạt động (Không dùng 'new')
+    var modal = bootstrap.Modal.getInstance(myModalEl);
+    
+    // 2. Kiểm tra nếu tìm thấy thì mới tắt
+    if (modal) {
+        modal.hide();
+    } else {
+        // Trường hợp modal chưa mở bao giờ hoặc lỗi
+        console.log("Không tìm thấy modal đang mở");
+    }
+
+        }
+
+         function luuMatKhau(){
+             var nd = val('#mkmoi',1) ; if(nd.trim() == '') return alert('Chưa nhập mật khẩu mới!')
+              var idnv = JSON.parse(user)['idnv'] ; if(u(idnv) == '') return alert('Chưa xác định được nhân viên!')
+              let obj = { ht : 'doi_matkhau' , mk : nd , nv : idnv }
+              momodal()
+                tatmodal_show()
+              fetch(api,{
+method:"POST",
+body:JSON.stringify(obj)
+}).then(res => res.json())
+  .then(dt => {
+     console.log(dt)
+        if(dt.tb == 'ok'){		    		
+             tatmodal()
+        }
+            alert(dt.nd)
+           
+        
+    })
+
+         }
 
         function tao_tbthicap(){
           nhapinner('sl_chon','')
