@@ -402,6 +402,80 @@ tbody tr:hover td.text-name {
         .item.checked .checkbox::after { content: "✔"; color: #fff; font-size: 12px; }
         .item.hidden { display: none; }
 
+        /* Container bao ngoài bảng - tạo thanh cuộn */
+.tb_dccn {
+    max-height: 500px; /* Chiều cao tối đa, vượt quá sẽ scroll */
+    overflow-y: auto;  /* Hiển thị thanh cuộn dọc */
+    margin-bottom: 20px; /* Cách vị trí footer/phần tử dưới 20px */
+    border: 1px solid #000; /* Viền bao ngoài */
+    font-family: Arial, Helvetica, sans-serif; /* Font chữ giống Excel */
+    font-size: 14px;
+}
+
+/* Cấu trúc bảng */
+.tb_dccn table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* Style chung cho ô */
+.tb_dccn th, .tb_dccn td {
+    border: 1px solid #000; /* Viền đen */
+    padding: 6px 8px;
+    white-space: nowrap; /* Giữ nội dung trên 1 dòng */
+}
+
+/* ---- PHẦN HEADER (Sticky Top) ---- */
+.tb_dccn thead th {
+    background-color: #d7e4bc; /* Màu xanh nhạt giống ảnh */
+    color: #000;
+    position: sticky;
+    top: 0;
+    z-index: 10; /* Đảm bảo nằm đè lên nội dung khi cuộn */
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 1px 0 #000; /* Fix lỗi mất viền bottom khi sticky */
+}
+
+/* ---- PHẦN NỘI DUNG ---- */
+/* Căn lề cho các cột */
+/* Cột STT (1), Ngày (3): Căn giữa */
+.tb_dccn tbody tr td:nth-child(1),
+.tb_dccn tbody tr td:nth-child(3) {
+    text-align: center;
+}
+
+/* Các cột Tiền (4, 5, 6): Căn phải */
+.tb_dccn tbody tr td:nth-child(4),
+.tb_dccn tbody tr td:nth-child(5),
+.tb_dccn tbody tr td:nth-child(6) {
+    text-align: right;
+}
+
+/* ---- PHẦN TỔNG (Sticky Bottom - Dòng cuối cùng) ---- */
+/* Giả lập tfoot sticky bằng dòng cuối của tbody */
+.tb_dccn tbody tr:last-child td {
+    position: sticky;
+    bottom: 0;
+    background-color: #f6f09f; /* Cần màu nền để che nội dung trôi qua */
+    font-weight: bold;
+    z-index: 10;
+    border-top: 2px solid #000; /* Viền đậm hơn để ngăn cách */
+}
+
+/* Class hỗ trợ màu đỏ (sẽ dùng trong JS) */
+.text-red {
+    color: red !important;
+}
+.text-vang {
+    color: rgb(162, 3, 255) !important;
+}
+.nen_do {
+    color: rgb(255, 242, 0) !important;
+    background-color: #ff0000;
+}
+
     </style>
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
@@ -421,6 +495,7 @@ tbody tr:hover td.text-name {
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="index.html" >Công Nợ</a></li>
                         <li><a class="dropdown-item" onclick="doimk()" >Đổi mật khẩu</a></li>
                         <li><hr class="dropdown-divider" /></li>
                         <li><a class="dropdown-item" onclick="logout()" >Đăng xuất</a></li>
@@ -498,6 +573,6 @@ tbody tr:hover td.text-name {
        
         
         <div id = "modalchung" class="end giaodien" ></div>
-     <script>dangnhap()</script>
+     <script>dangnhap('dccn')</script>
     </body>
 </html>
