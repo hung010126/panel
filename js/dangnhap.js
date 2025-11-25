@@ -4,16 +4,16 @@
   let timelog = localStorage.timelg ;
   let tk = '' , dt = [] , tt_nv = [] , tt_hm = [] , tt_ghi = [] , tt_gach = [] , dschinhanh = [] , tt_kpi = []  ; 
   
-function dangnhap(){
+function dangnhap(loai){
          if(user == '' || user == null || user == undefined || timelog == undefined || timelog == '') return  window.location.href = 'login.html'
          var gio = new Date().getTime() , tru = gio - timelog , tr = tru / (1000 * 60 * 60) ; if(tr > 72 )  return  thoat() // hạn chế thời gian sử dụng 3 ngày đăng nhập
          var tt = JSON.parse(user) , ten = tt['ten'] ; console.log(tt) ; tk = tt ; nhapval('#tkdn',`<div class="small">Xin chào:</div>${ten}`,2)
-                 tao_dtxem()
+                 tao_dtxem(loai)
         }
 
  
 
- function tao_dtxem(){
+ function tao_dtxem(loai){
  let obj = { ht : 'laydl_panel' }			  
  fetch(api,{
 method:"POST",
@@ -30,7 +30,7 @@ body:JSON.stringify(obj)
           tt_kpi = ar.kpi
           dschinhanh = ar.dschinhanh 
           nhapinner('kq',`<div class ="text-center" style="margin-top:20px;color:red;">Vui lòng bấm nút tìm kiếm để xem báo cáo!</div>`)
-          timkiem()
+          timkiem(loai)
     } else {
         alert(dt.tb+'\nVui lòng F5 sau ít phút!')
     }
@@ -493,7 +493,7 @@ function taolocds(ar,cot){
 
 
 
-function timkiem(){
+function timkiem(loai){
       nhapinner('tim_kiem',`<table style = "width:100%">
             <tr>
                 <td>
@@ -534,7 +534,7 @@ function timkiem(){
                 </td>
             </tr>
             <tr>
-                <td>
+                <td ${loai == 'dccn' ? 'colspan = "2"' : ''} >
                     
      <div class="select-container" id="box-2">
         <div class="select-btn" onclick="toggleMenu('box-2', event)">
@@ -558,7 +558,7 @@ function timkiem(){
         </div>
     </div>
                 </td>
-                <td>
+                ${loai == 'dccn' ? '' : `<td>
                
 
     <div class="select-container" id="box-3">
@@ -582,9 +582,10 @@ function timkiem(){
                 </ul>
         </div>
     </div>
-                </td>
-                <td>
-                    <button onclick="xembc()" class="btn btn-primary w-100 mt-2">BÁO CÁO</button>
+                </td>`}
+               
+                <td >
+                    <button onclick="${loai == 'dccn' ? 'xemdccn()' : 'xembc()'} " class="btn btn-primary w-100 mt-2">BÁO CÁO</button>
                   
                 </td>
 
@@ -593,6 +594,107 @@ function timkiem(){
         
 
 }
+function xemdccn(){
+     var tu = val('#a1',1) , den = val('#a2',1) , kq = [] 
+         if(tu == '' || den == '') return alert('Vui lòng chọn khoảng thời gian!')
+         var [y1,m1,d1] = tu.split('-') , [y2,m2,d2] = den.split('-')
+         var n_t = new Date(y1,Number(m1)-1,d1,0,0,0).getTime() , n_d = new Date(y2,Number(m2)-1,d2,0,0,0).getTime() ; if(n_d < n_t) return alert('Ngày đến phải lớn hơn ngày từ!')
+         var cn = xemchon('box-1') , kh = xemchon('box-2')
+         if(kh.length == 0 ) return alert('Vui lòng chọn ít nhất 1 khách!')
+         var gomdt = Object.groupBy(dt,r => r[4]) , chonkh = kh.map(v => {return gomdt[v] == undefined ? 'Emty' : gomdt[v][0][0] })
+console.log({ tt_gach , tt_ghi })
+        var gach =  tt_gach.filter(v => {
+            var loc = cn.length == 0 ? 0 : cn.findIndex(kt => kt == u(v[0]))
+            return loc >= 0 && chonkh.findIndex(bv => bv == v[5]) >= 0 && u(v[3]) == ''  ? true : false
+        }).map( (r,stt) => {
+             return [  '', u(r[4]) , 0 , ns(u(r[6]))  ]
+         })
+
+
+        var ghi =  tt_ghi.filter(v => {
+            var loc = cn.length == 0 ? 0 : cn.findIndex(kt => kt == u(v[0]))
+            return loc >= 0  && chonkh.findIndex(bv => bv == v[6]) >= 0 && u(v[3]) == ''   ? true : false
+        }).map( (r,stt) => {
+             return [ u(r[11]) , u(r[4]) , ns(u(r[15])) , 0 ]
+         })
+
+         console.log({gach,ghi})
+
+         var kq = [] ; var gz =  Object.groupBy([].concat(ghi,gach),r => `${u(r[0])}<@>${u(r[1])}`) ; for(const[a,b] of Object.entries(gz)){
+            var [s1,s2] = a.split('<@>') ; kq.push([s1,s2,tongmang(b,2),tongmang(b,3)])
+         }
+console.log(kq)
+          var so = 0 , dauky = 0 , a1 = 0 , a2 = 0 , a3 = 0 , ar = [] , stt = 1 , sx = kq.sort( (za,zb) => {return gettime(u(za[1])) - gettime(u(zb[1])) } )
+
+     sx.forEach(b => {
+        var cn = gettime(u(b[1])) , ss = b[2] + b[3] ; so += ss ; if(cn < n_t){ dauky +=  ss  }
+        if(cn >= n_t && cn <= n_d){ ar.push([ stt ,b[0],b[1],b[2]*-1,b[3] , so*-1  ]) ; stt++ }
+        if(cn >= n_t && cn <= n_d){
+          a1 += b[2]
+          a2 += b[3]
+        }
+        if( cn <= n_d){a3 += ss}
+    })
+
+    var gomar = Object.groupBy(ar,ll => ll[1])
+                          
+     nhapinner('kq',`
+          <div class="tb_dccn">
+          <table>
+               <thead>
+                     <tr>
+                         <th>Stt</th>	
+                         <th>Số đơn hàng</th>	
+                         <th>Ngày</th>	
+                         <th>Giá trị đơn hàng</th>	
+                         <th>Thanh toán</th>	
+                         <th>Dư nợ</th>
+                     </tr>
+               </thead>
+               <tbody>
+                     <tr>
+                        
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          ${ddso(dauky*-1)}
+                     </tr>
+                        ${ar.map(c => {
+                            return `<tr>
+                            <td>${c[0]}</td>
+                            <td ${gomar[c[1]].length > 1 ? 'class = "nen_do"' : '' } >${c[1]}</td>
+                            <td>${c[2]}</td>
+                            ${ddso(c[3])}
+                            ${ddso(c[4])}
+                            ${ddso(c[5])}
+                            </tr>`
+                        }).join(' ')}
+                           <tr>
+                          <td></td>
+                          <td>Tổng</td>
+                          <td></td>
+                          ${ddso(a1*-1)}
+                          ${ddso(a2)}
+                          ${ddso(a3*-1)}
+                     </tr>
+               </tbody>
+              
+        </table>
+        </div>`)
+          
+
+
+}
+
+function ddso(x){
+      var l = Number(x) ; if(isNaN(l) == true) return `<td class = "text-vang" >${x}</td>`
+      if(l < 0) return `<td class = "text-red" >${Number(l.toFixed(0)).toLocaleString('vi')}</td>`
+      return `<td >${Number(l.toFixed(0)).toLocaleString('vi')}</td>`
+}
+
+
 
 // 1. Mở/Đóng Menu theo ID container
         function toggleMenu(containerId, event) {
