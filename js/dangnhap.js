@@ -135,9 +135,15 @@ function xembc(){
         var themcoc = (cuoiky - quahan).toFixed(0) > 0 ?  cuoiky - quahan : 0
 
         var qh_nn = conlai == 0 ? 0 :  Number(quahan.toFixed(1) ) *-1
-        var qh_30nn = conlai == 0 ? 0 :   (qh.t30 - qh.t30_60) > 0  ? 0 :  (qh.t30 - qh.t30_60 )*-1 
-        var qh_3060nn = conlai == 0 ? 0 :  (qh.t30_60 -  qh.t60 ) > 0  ? 0 :  (qh.t30_60 -  qh.t60 )*-1 
-        var qh_60nn = conlai == 0 ? 0 :  qh.t60*-1
+          
+        // var qh_30nn = conlai == 0 ? 0 :   (qh.t30 - qh.t30_60) > 0  ? 0 :  (qh.t30 - qh.t30_60 )*-1                đóng và thay đổi mới 05.12.25
+        // var qh_3060nn = conlai == 0 ? 0 :  (qh.t30_60 -  qh.t60 ) > 0  ? 0 :  (qh.t30_60 -  qh.t60 )*-1            đóng và thay đổi mới 05.12.25
+        // var qh_60nn = conlai == 0 ? 0 :  qh.t60*-1                                                                 đóng và thay đổi mới 05.12.25
+
+        var qh_30nn = conlai == 0 || qh_nn == 0 || qh.t30 == 0  ? 0 : qh.t30_60 == 0 ? (qh.t30 - qh.t60)*-1 : qh.t60 == 0 ? (qh.t30 - qh.t30_60)*-1 : qh.t30*-1
+        var qh_3060nn = conlai == 0 || qh_nn == 0 || qh.t30_60 == 0 ? 0 : qh.t30_60*-1
+        var qh_60nn = conlai == 0 || qh_nn == 0 ? 0 :  qh.t60*-1 
+          
         var coc_nn = conlai == 0 ? 0 :  coc
         var conlai_n = dauky + phaithu + tongthu - Number(congnotronghan.toFixed(1)) + qh_nn -(coc_nn + themcoc)
          // (dauky*-1) + (phaithu*-1) + tongthu + (Number(congnotronghan.toFixed(1))*-1) + qh_nn + conlai + coc_nn + themcoc
